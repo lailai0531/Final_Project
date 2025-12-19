@@ -1,0 +1,16 @@
+{
+    "name": "CustomEditorScript",
+    "rootNamespace": "",
+    "references": [
+        "GUID:c3b331106f301e74daa0c8630fd7402f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
