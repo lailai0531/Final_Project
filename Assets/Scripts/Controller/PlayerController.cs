@@ -1,139 +1,103 @@
-using System;
-using System.Collections;
-using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Controller {
+namespace Controller
+{
     [RequireComponent(typeof(CharacterController))]
-    public class PlayerController : MonoBehaviour {
-        // @formatter:off
+    public class PlayerController : MonoBehaviour
+    {
         [Header("Components")]
         [SerializeField] private Animator animator;
+        // 現在只需要一個相機
+        [SerializeField] private Transform playerCamera;
 
         [Header("Movement Settings")]
-        [SerializeField] private CinemachineCamera freelookCamera;
-        [SerializeField] private CinemachineCamera aimCamera;
         [SerializeField] private float walkSpeed = 2f;
         [SerializeField] private float sprintSpeed = 5f;
         [SerializeField] private float jumpHeight = 2f;
         [SerializeField] private float gravity = -9.8f;
-        [SerializeField] private bool shouldFaceMoveDirection = false;
-        [SerializeField] private CameraSwitcher cameraSwitcher;
 
         [Header("Animation Settings")]
         [SerializeField] private string speedParameterName = "Speed";
         [SerializeField] private string sprintParameterName = "Sprint";
         [SerializeField] private string jumpTriggerName = "Jump";
-        [SerializeField] private float speedMultiplier = 2.8f;
-        [SerializeField] private float animationDampTime = 0f;
-        [SerializeField] private float isMovingThreshold = 0.05f;
-        // @formatter:on
 
         private InputSystem_Actions _actions;
         private CharacterController _controller;
-        private Transform _aimTarget;
         private Vector2 _moveInput;
         private Vector3 _velocity;
-        private int _movementSpeedParameterId, _sprintParameterId, _jumpTriggerId;
+        private int _speedId, _sprintId, _jumpId;
 
-        void Awake() {
+        void Awake()
+        {
             _controller = GetComponent<CharacterController>();
-            _movementSpeedParameterId = Animator.StringToHash(speedParameterName);
-            _sprintParameterId = Animator.StringToHash(sprintParameterName);
-            _jumpTriggerId = Animator.StringToHash(jumpTriggerName);
+            _speedId = Animator.StringToHash(speedParameterName);
+            _sprintId = Animator.StringToHash(sprintParameterName);
+            _jumpId = Animator.StringToHash(jumpTriggerName);
             _actions = new InputSystem_Actions();
-            if (aimCamera)
-                _aimTarget = aimCamera.Follow;
-        }
 
-        private void OnEnable() {
-            _actions.Player.Move.performed += OnMove;
-            _actions.Player.Move.canceled += OnMove;
-            _actions.Player.Jump.performed += OnJump;
-            _actions.Player.Jump.canceled += OnJump;
-            _actions.Player.Enable();
-        }
-
-        private void OnDisable() {
-            _actions.Player.Move.performed -= OnMove;
-            _actions.Player.Move.canceled -= OnMove;
-            _actions.Player.Jump.performed -= OnJump;
-            _actions.Player.Jump.canceled -= OnJump;
-            _actions.Player.Disable();
-        }
-
-        public void OnMove(InputAction.CallbackContext context) {
-            _moveInput = context.ReadValue<Vector2>();
-        }
-
-        public void OnJump(InputAction.CallbackContext context) {
-            if (context.performed && _controller.isGrounded) {
-                StartCoroutine(WaitAnimationJump());
-                if (animator)
-                    animator.SetTrigger(_jumpTriggerId);
+            // 自動抓取主相機，省去手動拉的動作（如果場景中有 MainCamera）
+            if (playerCamera == null && Camera.main != null)
+            {
+                playerCamera = Camera.main.transform;
             }
         }
 
-        private IEnumerator WaitAnimationJump() {
-            yield return new WaitForSeconds(0.2f);
-            _velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-        }
+        private void OnEnable() => _actions.Player.Enable();
+        private void OnDisable() => _actions.Player.Disable();
 
-        private void Update() {
-            Vector3 forward, right;
-            if (cameraSwitcher.IsAiming) {
-                forward = transform.forward;
-                right = transform.right;
-            } else {
-                forward = freelookCamera.transform.forward;
-                right = freelookCamera.transform.right;
-            }
+        private void Update()
+        {
+            if (playerCamera == null) return;
 
+            // 1. 取得移動方向 (相對於相機)
+            _moveInput = _actions.Player.Move.ReadValue<Vector2>();
+
+            Vector3 forward = playerCamera.forward;
+            Vector3 right = playerCamera.right;
             forward.y = 0;
             right.y = 0;
-
             forward.Normalize();
             right.Normalize();
 
             Vector3 moveDirection = forward * _moveInput.y + right * _moveInput.x;
 
+            // 2. 處理速度與動畫
             bool isSprinting = _actions.Player.Sprint.IsPressed();
-            float speed = isSprinting ? sprintSpeed : walkSpeed;
+            float targetSpeed = isSprinting ? sprintSpeed : walkSpeed;
 
-            // Horizontal movement (xz)
-            Vector3 oldVelocity = new Vector3(_controller.velocity.x, 0, _controller.velocity.z);
-            Vector3 horizontalVelocity = Vector3.Slerp(oldVelocity, moveDirection * speed, Time.deltaTime * 10f);
-            // Apply move speed to animation parameter (e.g., "movementSpeed")
-            if (animator) {
-                float movementSpeed = moveDirection.magnitude * speedMultiplier;
-                if (movementSpeed < isMovingThreshold)
-                    movementSpeed = 0;
+            // 這裡直接用 moveDirection 帶入移動
+            Vector3 horizontalMove = moveDirection * targetSpeed;
 
-                animator.SetFloat(_movementSpeedParameterId, movementSpeed, animationDampTime, Time.deltaTime);
-                animator.SetBool(_sprintParameterId, isSprinting);
+            if (animator)
+            {
+                animator.SetFloat(_speedId, moveDirection.magnitude * targetSpeed, 0.1f, Time.deltaTime);
+                animator.SetBool(_sprintId, isSprinting);
             }
 
-            if (cameraSwitcher.IsAiming) {
-                Vector3 aimDirection = _aimTarget.forward;
-                aimDirection.y = 0;
-                aimDirection.Normalize();
-                if (aimDirection.sqrMagnitude > 0.01f) {
-                    Quaternion targetRotation = Quaternion.LookRotation(aimDirection);
-                    transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f);
-                }
-            } else if (shouldFaceMoveDirection && moveDirection.sqrMagnitude > 0.01f) {
-                Quaternion quaternion = Quaternion.LookRotation(moveDirection, Vector3.up);
-                transform.rotation = Quaternion.Slerp(transform.rotation, quaternion, Time.deltaTime * 5f);
+            // 3. 旋轉角色 (如果是第一人稱，通常角色會跟著相機轉)
+            if (moveDirection.sqrMagnitude > 0.01f)
+            {
+                // 如果是 FPS，你也可以讓角色始終跟隨相機水平轉向
+                transform.rotation = Quaternion.LookRotation(forward);
             }
 
-            // Apply gravity continuously
-            if (!_controller.isGrounded)
-                _velocity.y += gravity * Time.deltaTime;
+            // 4. 重力與跳躍
+            if (_controller.isGrounded && _velocity.y < 0)
+            {
+                _velocity.y = -2f; // 保持接地
+            }
 
-            // Combine horizontal and vertical velocities
-            Vector3 finalVelocity = new Vector3(horizontalVelocity.x, _velocity.y, horizontalVelocity.z);
-            _controller.Move(finalVelocity * Time.deltaTime);
+            if (_actions.Player.Jump.WasPressedThisFrame() && _controller.isGrounded)
+            {
+                _velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+                if (animator) animator.SetTrigger(_jumpId);
+            }
+
+            _velocity.y += gravity * Time.deltaTime;
+
+            // 5. 最終移動
+            _controller.Move((horizontalMove + _velocity) * Time.deltaTime);
         }
     }
 }
