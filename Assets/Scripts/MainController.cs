@@ -21,6 +21,8 @@ public class MainController : MonoBehaviour
 
     private int score = 0;
 
+    public MonoBehaviour[] playerScripts;
+
     void Start()
     {
         Time.timeScale = 0f;
@@ -58,6 +60,7 @@ public class MainController : MonoBehaviour
     public void OnContinueBtnClick()
     {
         // 直接呼叫「進入遊戲狀態」，它會負責恢復時間並關閉選單
+
         EnterGameplayState();
     }
 
@@ -99,6 +102,15 @@ public class MainController : MonoBehaviour
         isGameStarted = true;
         isPaused = false;
         Time.timeScale = 1f;
+        // 3. 【關鍵】再次鎖定滑鼠
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
+        // 4. 恢復主角控制
+        foreach (var script in playerScripts)
+        {
+            if (script != null) script.enabled = true;
+        }
 
         startMenu.SetActive(false);
         pauseMenu.SetActive(false);
@@ -113,6 +125,14 @@ public class MainController : MonoBehaviour
         {
             Time.timeScale = 0f;
             pauseMenu.SetActive(true);
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+
+            // 4. 停用主角控制 (防止在選單滑滑鼠時，背後鏡頭跟著轉)
+            foreach (var script in playerScripts)
+            {
+                if (script != null) script.enabled = false;
+            }
 
             if (scoreText != null)
             {
@@ -143,7 +163,7 @@ public class MainController : MonoBehaviour
             Destroy(currentTargets);
         }
 
-        currentTargets = Instantiate(targetsPrefab);
+        //currentTargets = Instantiate(targetsPrefab);
     }
 
     public void AddScore(int amount)

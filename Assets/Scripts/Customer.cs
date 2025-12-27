@@ -49,6 +49,7 @@ public class Customer : MonoBehaviour
 
     void Update()
     {
+        if (mySeatIndex == -1) return;
         // 階段一：走路中
         if (!hasArrived)
         {
@@ -105,7 +106,6 @@ public class Customer : MonoBehaviour
     void ArriveAtCounter()
     {
         hasArrived = true;
-        Debug.Log("客人抵達，開始點餐！");
 
         // 【關鍵修改 1】關閉導航代理的旋轉控制
         // 這樣它就不會跟你搶控制權，客人就會乖乖定住
@@ -138,11 +138,14 @@ public class Customer : MonoBehaviour
     // 2. 【新增】這個函式會在動畫播完後執行，強迫他看著你
     void LateUpdate()
     {
-        // 只有在「抵達後」且「有攝影機」時才執行
+        // 確保只有抵達後才執行 LookAt
         if (hasArrived && Camera.main != null)
         {
-            // 持續看著鏡頭 (每一幀都強迫轉過去，這樣動畫就扳不回來了)
             transform.LookAt(Camera.main.transform);
+
+            // 鎖定 X 和 Z 軸旋轉，只讓怪轉 Y 軸 (水平轉)，不然怪會仰頭看你很怪，也會卡
+            Vector3 euler = transform.rotation.eulerAngles;
+            transform.rotation = Quaternion.Euler(0, euler.y, 0);
         }
     }
 
@@ -151,22 +154,44 @@ public class Customer : MonoBehaviour
 
 
 
-
+    public bool IsArrived()
+    {
+        return hasArrived;
+    }
 
     void GenerateRandomOrder()
     {
+        // 【防呆修正 1】檢查座位編號是否有效
+        // 如果是 -1 (還沒初始化) 或者 超過 GameFlow 的陣列長度 (例如只有3個位子卻傳來3號)
+        if (mySeatIndex < 0 || mySeatIndex >= GameFlow.orderValue.Length)
+        {
+            Debug.LogError("嚴重錯誤：座位編號無效！目前索引: " + mySeatIndex);
+            return; // 直接中斷，保護程式不崩潰
+        }
+
+        // 【防呆修正 2】檢查菜單陣列是否為空
+        if (menuCodes == null || menuCodes.Length == 0)
+        {
+            Debug.LogError("嚴重錯誤：menuCodes 沒設定或是空的！");
+            return;
+        }
+
         // 隨機選菜
         int randomPick = Random.Range(0, menuCodes.Length);
         int chosenCode = menuCodes[randomPick];
 
-        // 寫入 GameFlow
+        // 寫入 GameFlow (因為上面有檢查過 mySeatIndex，這裡絕對安全了)
         GameFlow.orderValue[mySeatIndex] = chosenCode;
         GameFlow.orderTimer[mySeatIndex] = myTime;
 
         // 更新圖片
         if (GameFlow.instance != null && orderImage != null)
         {
-            orderImage.sprite = GameFlow.instance.orderPics[randomPick];
+            // 也要確保 GameFlow 圖片陣列夠長
+            if (randomPick < GameFlow.instance.orderPics.Length)
+            {
+                orderImage.sprite = GameFlow.instance.orderPics[randomPick];
+            }
         }
 
         // 初始化 Slider
@@ -175,13 +200,12 @@ public class Customer : MonoBehaviour
             timerSlider.maxValue = myTime;
             timerSlider.value = myTime;
 
-            // 【新增】抓取 Slider 裡面的 Fill Image 並重置顏色
-            // fillRect 是 Slider 組件內建的屬性，指向填滿區域的 RectTransform
+            // 抓取 Slider 裡面的 Fill Image 並重置顏色
             if (timerSlider.fillRect != null)
             {
                 sliderFillImage = timerSlider.fillRect.GetComponent<Image>();
 
-                // 一開始設回綠色 (避免繼承上一個客人的紅色狀態)
+                // 一開始設回綠色
                 if (sliderFillImage != null)
                 {
                     sliderFillImage.color = Color.green;
