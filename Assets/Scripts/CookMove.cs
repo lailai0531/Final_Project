@@ -9,37 +9,52 @@ public class CookMove : MonoBehaviour
     private string stillcooking = "y";
 
     [Header("Effects")]
-    [SerializeField] private ParticleSystem smokeEffect; // 在 Inspector 把粒子系統拉進來
+    [SerializeField] private ParticleSystem smokeEffect;
+
+    [Header("Audio")]
+    [SerializeField] private AudioSource grillAudio;
+    [SerializeField] private AudioSource placeAudio;
 
     void Start()
     {
         meat = GetComponent<MeshRenderer>();
 
-        // 開始煎肉時播放煙霧
         if (smokeEffect != null)
         {
             smokeEffect.Play();
         }
 
+        if (grillAudio != null)
+        {
+            grillAudio.loop = true;
+            grillAudio.Play();
+        }
+
         StartCoroutine(cookTimer());
     }
 
-    private void OnMouseDown()
+    public void Interact()
     {
-        // 如果還在煮，點擊無效
         if (stillcooking == "y") { return; }
 
-        // 拿走肉時，關閉煙霧
+        if (placeAudio != null)
+        {
+            placeAudio.PlayOneShot(placeAudio.clip);
+        }
+
         if (smokeEffect != null)
         {
             smokeEffect.Stop();
         }
 
-        // 移動到盤子
+        if (grillAudio != null)
+        {
+            grillAudio.Stop();
+        }
+
         GetComponent<Transform>().position = new Vector3(GameFlow.plateXpos, 1.8f, 0.2165146f);
         GameFlow.plateValue[GameFlow.plateNum] += foodValue;
 
-        // 設回 y 是為了防止重複點擊已在盤子上的肉
         stillcooking = "y";
     }
 
@@ -51,10 +66,7 @@ public class CookMove : MonoBehaviour
         if (stillcooking == "y")
         {
             meat.material.color = new Color(.3f, .3f, .3f);
-            stillcooking = "n"; // 煮好了，開放點擊
-
-            // 如果你希望煮熟後煙就消失，取消下面這一行的註解：
-            // if (smokeEffect != null) smokeEffect.Stop();
+            stillcooking = "n";
         }
     }
 }

@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,11 +13,11 @@ public class ServePlate : MonoBehaviour
     {
 
     }
-    private void OnMouseDown()
+    public void Interact()
     {
         if (GameFlow.plateNum != thisPlate)
         {
-            return; // ©¿²¤³o¦¸ÂIÀ»
+            return; // å¿½ç•¥é€™æ¬¡é»æ“Š
         }
         bool isRight = (GameFlow.orderValue[thisPlate] == GameFlow.plateValue[thisPlate]);
         /*if (GameFlow.orderValue[thisPlate] == GameFlow.plateValue[thisPlate])
@@ -39,7 +39,7 @@ public class ServePlate : MonoBehaviour
     {
         yield return new WaitForSeconds(.2f);
         GameFlow.emptyPlateNow = -1;
-        if (isCorrect) // ¥u¦³¬O¹ïªº®É­Ô¤~¥[¿ú
+        if (isCorrect) // åªæœ‰æ˜¯å°çš„æ™‚å€™æ‰åŠ éŒ¢
         {
             GameFlow.totalCash += GameFlow.orderTimer[thisPlate] * .10f;
         }
@@ -53,7 +53,7 @@ public class ServePlate : MonoBehaviour
     {
         GameFlow.emptyPlateNow = transform.position.x;
         yield return new WaitForSeconds(0.2f);
-        GameFlow.emptyPlateNow = -1;
+        GameFlow.emptyPlateNow = -3;
 
 
         if (isRight)
@@ -68,7 +68,7 @@ public class ServePlate : MonoBehaviour
             GameFlow.totalCash -= 50;
             if (GameFlow.seatMap[thisPlate] != null)
                 GameFlow.seatMap[thisPlate].Leave(true);
-            Debug.Log("°µ¿ù¤F¡I");
+            Debug.Log("åšéŒ¯äº†ï¼");
         }
 
 

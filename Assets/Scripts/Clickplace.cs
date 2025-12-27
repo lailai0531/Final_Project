@@ -7,16 +7,24 @@ public class clickplace : MonoBehaviour
     public Transform cloneObj;
     public int foodValue;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource placeAudio;
+
     void Start()
     {
-
     }
+
     void Update()
     {
-
     }
-    private void OnMouseDown()
+
+    public void Interact()
     {
+        if (placeAudio != null)
+        {
+            placeAudio.PlayOneShot(placeAudio.clip);
+        }
+
         if (gameObject.name == "bunbottom")
             Instantiate(cloneObj, new Vector3(GameFlow.plateXpos, 2.2f, 0.2165146f), cloneObj.rotation);
         if (gameObject.name == "buntop")
@@ -27,6 +35,7 @@ public class clickplace : MonoBehaviour
             Instantiate(cloneObj, new Vector3(GameFlow.plateXpos, 2.2f, 0.2165146f), cloneObj.rotation);
         if (gameObject.name == "tomato")
             Instantiate(cloneObj, new Vector3(GameFlow.plateXpos, 2.2f, 0.2165146f), cloneObj.rotation);
+
         GameFlow.plateValue[GameFlow.plateNum] += foodValue;
         Debug.Log(GameFlow.plateValue[GameFlow.plateNum] + " " + GameFlow.orderValue[GameFlow.plateNum]);
     }
