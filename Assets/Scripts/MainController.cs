@@ -1,33 +1,31 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
-using UnityEngine.SceneManagement; // ⭐ 1. 必加這行，才能切換場景
+using UnityEngine.SceneManagement;
 
 public class MainController : MonoBehaviour
 {
     [Header("Game Settings")]
-    public float gameDuration = 60f; // ⭐ 設定遊戲時間 (例如 60 秒)
-    public string nextSceneName = "Level2"; // ⭐ 下一關的場景名稱
+    public float gameDuration = 60f; // 遊戲限時
+    public string nextSceneName = "Level2"; // 下一關場景名稱
 
     [Header("UI References")]
     public GameObject startMenu;
     public GameObject pauseMenu;
-    public TextMeshProUGUI scoreText; // 這是暫停頁面的分數
-
+    public TextMeshProUGUI scoreText; // HUD 或 暫停介面的分數
     public GameObject gameHUD;
 
-    // ⭐ 新增結算畫面參考
+    [Header("Game Over UI")]
     public GameObject gameOverPanel;
     public TextMeshProUGUI finalScoreText;
 
     [Header("Targets Prefab")]
     public GameObject targetsPrefab;
-
     private GameObject currentTargets;
 
     private bool isPaused = false;
     private bool isGameStarted = false;
-    private bool isGameOver = false; // ⭐ 防止重複觸發結束
+    private bool isGameOver = false;
 
     private int score = 0;
 
@@ -49,16 +47,19 @@ public class MainController : MonoBehaviour
 
     void Update()
     {
-        // 如果遊戲還沒開始，或是已經結束了，就不跑下面的邏輯
+        // 沒開始 或 已結束 就不執行
         if (!isGameStarted || isGameOver) return;
 
-        // ⭐ 檢查時間是否到了
+        // 1. 時間流動
+        GameFlow.gameTime += Time.deltaTime;
+
+        // 2. 檢查時間是否到了
         if (GameFlow.gameTime >= gameDuration)
         {
-            EndGame(); // 時間到！執行結束邏輯
+            EndGame();
         }
 
-        // 偵測 ESC 暫停
+        // 3. 偵測 ESC 暫停
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             TogglePause();
@@ -66,62 +67,60 @@ public class MainController : MonoBehaviour
     }
 
     // =======================
-    // ⭐ 新增：遊戲結束邏輯
+    // 遊戲結束與結算
     // =======================
     private void EndGame()
     {
         isGameOver = true;
-        isGameStarted = false; // 停止 Update 裡的偵測
-        Time.timeScale = 0f;   // 暫停時間
+        isGameStarted = false;
+        Time.timeScale = 0f;
 
-        // 1. 處理滑鼠 (這很重要，不然玩家點不到按鈕)
+        // 解鎖滑鼠
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        // 2. 停用主角控制
+        // 停用主角
         foreach (var script in playerScripts)
         {
             if (script != null) script.enabled = false;
         }
 
-        // 3. 關閉 HUD，顯示結算畫面
+        // 關閉 HUD，顯示結算
         if (gameHUD != null) gameHUD.SetActive(false);
+
         if (gameOverPanel != null)
         {
             gameOverPanel.SetActive(true);
 
-            // 顯示最終分數
             if (finalScoreText != null)
             {
-                finalScoreText.text = $"Final Score: ${GameFlow.totalCash:0}";
+                finalScoreText.text = $"Time's Up!\nFinal Score: ${GameFlow.totalCash:0}";
             }
         }
     }
 
     // =======================
-    // ⭐ 新增：切換場景 (給結算畫面的按鈕用)
+    // 場景跳轉 (給結算畫面的 Next Level 按鈕用)
     // =======================
     public void OnNextLevelBtnClick()
     {
-        // 記得把時間流動改回 1，不然下個場景會動不了
+        // 恢復時間，避免下一關卡住
         Time.timeScale = 1f;
 
-        // 載入下一個場景
+        // 重置靜態變數
+        //GameFlow.ResetStatics();
+        //GameFlow.gameTime = 0f;
+
         SceneManager.LoadScene(nextSceneName);
     }
 
     // =======================
-    // UI Button Events
+    // UI 按鈕事件 (Restart 已移除)
     // =======================
 
     public void OnStartBtnClick()
     {
         StartGame();
-    }
-
-    public void OnRestartBtnClick()
-    {
-        RestartGame();
     }
 
     public void OnContinueBtnClick()
@@ -136,7 +135,7 @@ public class MainController : MonoBehaviour
     }
 
     // =======================
-    // Game Flow
+    // Game Flow (Restart 邏輯已移除)
     // =======================
 
     private void StartGame()
@@ -145,24 +144,8 @@ public class MainController : MonoBehaviour
         ActivateTargets();
 
         GameFlow.ResetStatics();
+        isGameOver = false;
 
-        isGameOver = false; // ⭐ 重置結束狀態
-        EnterGameplayState();
-    }
-
-    private void RestartGame()
-    {
-        StopAllCoroutines();
-
-        if (currentTargets != null)
-            Destroy(currentTargets);
-
-        GameFlow.ResetGameFlow();
-
-        ResetScore();
-        ActivateTargets();
-
-        isGameOver = false; // ⭐ 重置結束狀態
         EnterGameplayState();
     }
 
@@ -173,27 +156,25 @@ public class MainController : MonoBehaviour
         isGameOver = false;
         Time.timeScale = 1f;
 
-        // 3. 鎖定滑鼠
+        // 鎖定滑鼠
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        // 4. 恢復主角控制
+        // 啟用主角
         foreach (var script in playerScripts)
         {
             if (script != null) script.enabled = true;
         }
 
+        // 切換 UI
         startMenu.SetActive(false);
         pauseMenu.SetActive(false);
-
-        // ⭐ 確保結算畫面是關的，HUD 是開的
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
         if (gameHUD != null) gameHUD.SetActive(true);
     }
 
     private void TogglePause()
     {
-        // 如果遊戲已經結束，就不允許切換暫停狀態
         if (isGameOver) return;
 
         isPaused = !isPaused;
@@ -203,11 +184,9 @@ public class MainController : MonoBehaviour
             Time.timeScale = 0f;
             pauseMenu.SetActive(true);
 
-            // 顯示滑鼠
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
 
-            // 停用主角控制
             foreach (var script in playerScripts)
             {
                 if (script != null) script.enabled = false;
@@ -228,12 +207,8 @@ public class MainController : MonoBehaviour
     {
         startMenu.SetActive(true);
         pauseMenu.SetActive(false);
-        if (gameOverPanel != null) gameOverPanel.SetActive(false); // ⭐
+        if (gameOverPanel != null) gameOverPanel.SetActive(false);
     }
-
-    // =======================
-    // Targets & Score
-    // =======================
 
     private void ActivateTargets()
     {
@@ -241,13 +216,7 @@ public class MainController : MonoBehaviour
         {
             Destroy(currentTargets);
         }
-        //currentTargets = Instantiate(targetsPrefab);
-    }
-
-    public void AddScore(int amount)
-    {
-        score += amount;
-        UpdateScoreUI();
+        // currentTargets = Instantiate(targetsPrefab);
     }
 
     private void ResetScore()
