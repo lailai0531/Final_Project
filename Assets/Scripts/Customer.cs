@@ -1,124 +1,96 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.AI; // ¡i­«­n¡j¤Ş¥Î¾É¯è¨t²Î
+using UnityEngine.AI;
 
-// ¥²¶·¦³ NavMeshAgent ²Õ¥ó¡A¦pªG¨S¦³·|¦Û°Ê¥[
 [RequireComponent(typeof(NavMeshAgent))]
 public class Customer : MonoBehaviour
 {
-    [Header("UI ³sµ²")]
-    public Image orderImage;       // ÀY¤Wªº­q³æ¹Ï¤ù
-    public Slider timerSlider;     // ÀY¤Wªº®É¶¡±ø
-    public GameObject uiCanvas;    // ÀY¤Wªº Canvas (¤@¶}©l¥ıÁôÂÃ)
+    [Header("UI é€£çµ")]
+    public Image orderImage;
+    public Slider timerSlider;
+    public GameObject uiCanvas;
 
-    [Header("ª¬ºA³]©w")]
+    [Header("ç‹€æ…‹è¨­å®š")]
     private NavMeshAgent agent;
-    private int mySeatIndex = -1;  // §Ú¬O²Ä´X¸¹®àªº«È¤H
-    private bool hasArrived = false; // ¬O§_¤w¸g©è¹FÂd¥x
+    private int mySeatIndex = -1;
+    private bool hasArrived = false;
 
-    // ¡i·s¼W¡j¥Î¨Ó±±¨îÅÜ¦âªº¹Ï¤ù¤¸¥ó
     private Image sliderFillImage;
 
-    // µæ³æ¥N½X (¹ïÀ³ GameFlow ªº Sprite ¶¶§Ç)
+    // èœå–®ä»£ç¢¼ (å°æ‡‰ GameFlow çš„ Sprite é †åº)
     private int[] menuCodes = { 111111, 111101, 011110, 110001 };
-    private float myTime = 30f;    // ­q³æ®É¶¡
+
+    // â­ã€æ–°å¢ã€‘èœå–®åƒ¹æ ¼ (å°æ‡‰ä¸Šé¢çš„ menuCodes)
+    // ä¾‹å¦‚: 111111(æ¼¢å ¡)è³£120å…ƒ, 111101(è–¯æ¢)è³£80å…ƒ...è«‹ä¾åºå¡«å…¥
+    private int[] menuPrices = { 100, 60, 60, 40 };
+
+    private float myTime = 30f;
 
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
-        // ¬°¤F¨¾¤î¨«¸ô®ÉÀY¤Wªº UI ¶ÃÂà¡A¥i¥H¸T¤î Agent ±±¨î±ÛÂà (¿ï¥Î)
-        // agent.updateRotation = false; 
     }
 
-    // === ªì©l¤Æ¨ç¦¡ (¥Ñ¥Í¦¨¾¹©I¥s) ===
     public void Initialize(Transform targetPoint, int seatIndex)
     {
         mySeatIndex = seatIndex;
-
-        // 1. µn°O®y¦ì¨ì GameFlow
         GameFlow.seatMap[seatIndex] = this;
-
-        // 2. ³]©w¾É¯è¥Øªº¦a
         agent.SetDestination(targetPoint.position);
 
-        // 3. ¤@¶}©l¥ıÁôÂÃ­q³æ UI
         if (uiCanvas != null) uiCanvas.SetActive(false);
     }
 
     void Update()
     {
         if (mySeatIndex == -1) return;
-        // ¶¥¬q¤@¡G¨«¸ô¤¤
+
         if (!hasArrived)
         {
-            // ÀË¬d¬O§_©è¹F¥Øªº¦a (¶ZÂ÷¤p©ó 0.5)
             if (!agent.pathPending && agent.remainingDistance < 0.5f)
             {
                 ArriveAtCounter();
             }
         }
-        // ¶¥¬q¤G¡G©è¹F«á¡A¶}©l­Ë¼Æ­p®É
         else
         {
-            // ¨¾§b¡G½T«O®y¦ì¯Á¤Ş¥¿½T
             if (mySeatIndex == -1) return;
 
-            // §ó·s GameFlow ªº­p®É¾¹
             GameFlow.orderTimer[mySeatIndex] -= Time.deltaTime;
-
             float currentTime = GameFlow.orderTimer[mySeatIndex];
 
-            // §ó·sÀY¤W UI
             if (timerSlider != null)
             {
                 timerSlider.value = currentTime;
 
-                // ¡i·s¼W¡jÅÜ¦âÅŞ¿è
-                // ¥²¶·¥ı½T«O¦³§ì¨ì sliderFillImage
                 if (sliderFillImage != null)
                 {
-                    // ­pºâ¤ñ¨Ò¡G³Ñ¾l®É¶¡ / Á`®É¶¡
                     float ratio = currentTime / myTime;
-
-                    // ¦pªG³Ñ¤U¤£¨ì 30% (0.3)¡AÅÜ¬õ¦â
-                    if (ratio <= 0.3f)
-                    {
-                        sliderFillImage.color = Color.red;
-                    }
-                    else
-                    {
-                        sliderFillImage.color = Color.green; // ¥­±`¬Oºñ¦â
-                    }
+                    if (ratio <= 0.3f) sliderFillImage.color = Color.red;
+                    else sliderFillImage.color = Color.green;
                 }
             }
 
-            // ÀË¬d®É¶¡¨ì
             if (currentTime <= 0)
             {
-                Leave(false); // ¥Í®ğÂ÷¶}
+                Leave(false);
             }
         }
     }
 
-    // === ©è¹FÂd¥x­n°µªº¨Æ ===
     void ArriveAtCounter()
     {
         hasArrived = true;
 
-        // ¡iÃöÁä­×§ï 1¡jÃö³¬¾É¯è¥N²zªº±ÛÂà±±¨î
-        // ³o¼Ë¥¦´N¤£·|¸ò§A·m±±¨îÅv¡A«È¤H´N·|¨Ä¨Ä©w¦í
         if (agent != null)
         {
             agent.updateRotation = false;
-            agent.velocity = Vector3.zero; // ¶¶«K±j¨î·Ù¨®¡A¨¾¤î·Æ¨B
+            agent.velocity = Vector3.zero;
         }
 
-        // 1. ­±¦VÃèÀY (©ïÀY¬İ§A)
         if (Camera.main != null)
         {
-            // ¦]¬°¤W­±Ãö±¼¤F updateRotation¡A³o¦æ LookAt ²{¦b·|¥Ã¤[¥Í®Ä¤F
             transform.LookAt(Camera.main.transform);
         }
         else
@@ -126,33 +98,20 @@ public class Customer : MonoBehaviour
             transform.rotation = Quaternion.Euler(0, 180, 0);
         }
 
-        // 2. Åã¥ÜÀY¤W UI
         if (uiCanvas != null) uiCanvas.SetActive(true);
 
-        // 3. ²£¥ÍÀH¾÷­q³æ
         GenerateRandomOrder();
     }
 
-
-
-    // 2. ¡i·s¼W¡j³o­Ó¨ç¦¡·|¦b°Êµe¼½§¹«á°õ¦æ¡A±j­¢¥L¬İµÛ§A
     void LateUpdate()
     {
-        // ½T«O¥u¦³©è¹F«á¤~°õ¦æ LookAt
         if (hasArrived && Camera.main != null)
         {
             transform.LookAt(Camera.main.transform);
-
-            // Âê©w X ©M Z ¶b±ÛÂà¡A¥uÅı©ÇÂà Y ¶b (¤ô¥­Âà)¡A¤£µM©Ç·|¥õÀY¬İ§A«Ü©Ç¡A¤]·|¥d
             Vector3 euler = transform.rotation.eulerAngles;
             transform.rotation = Quaternion.Euler(0, euler.y, 0);
         }
     }
-
-
-
-
-
 
     public bool IsArrived()
     {
@@ -161,70 +120,61 @@ public class Customer : MonoBehaviour
 
     void GenerateRandomOrder()
     {
-        // ¡i¨¾§b­×¥¿ 1¡jÀË¬d®y¦ì½s¸¹¬O§_¦³®Ä
-        // ¦pªG¬O -1 (ÁÙ¨Sªì©l¤Æ) ©ÎªÌ ¶W¹L GameFlow ªº°}¦Cªø«× (¨Ò¦p¥u¦³3­Ó¦ì¤l«o¶Ç¨Ó3¸¹)
-        if (mySeatIndex < 0 || mySeatIndex >= GameFlow.orderValue.Length)
-        {
-            Debug.LogError("ÄY­«¿ù»~¡G®y¦ì½s¸¹µL®Ä¡I¥Ø«e¯Á¤Ş: " + mySeatIndex);
-            return; // ª½±µ¤¤Â_¡A«OÅ@µ{¦¡¤£±Y¼ì
-        }
+        if (mySeatIndex < 0 || mySeatIndex >= GameFlow.orderValue.Length) return;
+        if (menuCodes == null || menuCodes.Length == 0) return;
 
-        // ¡i¨¾§b­×¥¿ 2¡jÀË¬dµæ³æ°}¦C¬O§_¬°ªÅ
-        if (menuCodes == null || menuCodes.Length == 0)
-        {
-            Debug.LogError("ÄY­«¿ù»~¡GmenuCodes ¨S³]©w©Î¬OªÅªº¡I");
-            return;
-        }
-
-        // ÀH¾÷¿ïµæ
         int randomPick = Random.Range(0, menuCodes.Length);
         int chosenCode = menuCodes[randomPick];
 
-        // ¼g¤J GameFlow (¦]¬°¤W­±¦³ÀË¬d¹L mySeatIndex¡A³o¸Ìµ´¹ï¦w¥ş¤F)
+        // å¯«å…¥ GameFlow
         GameFlow.orderValue[mySeatIndex] = chosenCode;
         GameFlow.orderTimer[mySeatIndex] = myTime;
 
-        // §ó·s¹Ï¤ù
+        // â­ã€æ–°å¢ã€‘å¯«å…¥åƒ¹æ ¼
+        // é˜²å‘†ï¼šç¢ºèª randomPick æœ‰åœ¨ menuPrices ç¯„åœå…§
+        if (randomPick < menuPrices.Length)
+        {
+            GameFlow.orderPrice[mySeatIndex] = menuPrices[randomPick];
+        }
+        else
+        {
+            GameFlow.orderPrice[mySeatIndex] = 50; // é è¨­ä½æ¶ˆ
+        }
+
+        // æ›´æ–°åœ–ç‰‡
         if (GameFlow.instance != null && orderImage != null)
         {
-            // ¤]­n½T«O GameFlow ¹Ï¤ù°}¦C°÷ªø
             if (randomPick < GameFlow.instance.orderPics.Length)
             {
                 orderImage.sprite = GameFlow.instance.orderPics[randomPick];
             }
         }
 
-        // ªì©l¤Æ Slider
+        // åˆå§‹åŒ– Slider
         if (timerSlider != null)
         {
             timerSlider.maxValue = myTime;
             timerSlider.value = myTime;
 
-            // §ì¨ú Slider ¸Ì­±ªº Fill Image ¨Ã­«¸mÃC¦â
             if (timerSlider.fillRect != null)
             {
                 sliderFillImage = timerSlider.fillRect.GetComponent<Image>();
-
-                // ¤@¶}©l³]¦^ºñ¦â
-                if (sliderFillImage != null)
-                {
-                    sliderFillImage.color = Color.green;
-                }
+                if (sliderFillImage != null) sliderFillImage.color = Color.green;
             }
         }
     }
 
-    // === Â÷¶}ÅŞ¿è ===
     public void Leave(bool isHappy)
     {
-        // ²M°£¸ê®Æ
         if (mySeatIndex != -1)
         {
+            GameFlow.totalCash -= 80;
             GameFlow.seatMap[mySeatIndex] = null;
             GameFlow.orderValue[mySeatIndex] = 0;
+            // â­ã€æ–°å¢ã€‘é›¢é–‹æ™‚æ¸…é™¤åƒ¹æ ¼
+            GameFlow.orderPrice[mySeatIndex] = 0;
         }
 
-        // Â²³æ°µªk¡Gª½±µ§R°£
         Destroy(gameObject);
     }
 }

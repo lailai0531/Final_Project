@@ -94,7 +94,7 @@ public class MainController : MonoBehaviour
 
             if (finalScoreText != null)
             {
-                finalScoreText.text = $"Time's Up!\nFinal Score: ${GameFlow.totalCash:0}";
+                finalScoreText.text = $"Gong Der: {GameFlow.totalCash:0}";
             }
         }
     }
@@ -194,7 +194,7 @@ public class MainController : MonoBehaviour
 
             if (scoreText != null)
             {
-                scoreText.text = $"Score : {GameFlow.totalCash:0}";
+                scoreText.text = $"Gong Der : {GameFlow.totalCash:0}";
             }
         }
         else
@@ -229,7 +229,7 @@ public class MainController : MonoBehaviour
     {
         if (scoreText != null)
         {
-            scoreText.text = $"Score : {score}";
+            scoreText.text = $"Gong Der : {score}";
         }
     }
 }

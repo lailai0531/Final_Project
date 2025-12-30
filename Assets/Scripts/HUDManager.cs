@@ -12,7 +12,7 @@ public class HUDManager : MonoBehaviour
         // 1. 更新金錢文字
         if (moneyText != null)
         {
-            moneyText.text = $"Cash: ${GameFlow.totalCash:0}";
+            moneyText.text = $"Gong Der: {GameFlow.totalCash:0}";
         }
 
         // 2. 更新時間文字

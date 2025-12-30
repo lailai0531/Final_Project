@@ -2,11 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))] // ⭐ 確保一定有 AudioSource
 public class ServePlate : MonoBehaviour
 {
     public int thisPlate = 0;
 
-    void Start() { }
+    [Header("Audio")]
+    [SerializeField] private AudioSource serveSuccessAudio;
+    [SerializeField] private AudioSource serveFailAudio;
+
+
+
+    void Start()
+    {
+
+    }
 
     void Update()
     {
@@ -23,53 +33,35 @@ public class ServePlate : MonoBehaviour
         }
     }
 
-    // ==========================================
-    //  送餐邏輯
-    // ==========================================
     public void Interact()
     {
-        // 1. 確保目前選到的是這個盤子
         if (GameFlow.plateNum != thisPlate) return;
-
-        // 2. 檢查盤子是不是空的
         if (GameFlow.plateValue[thisPlate] == 0) return;
 
-        // ----------------------------------------------------
-        // 3. 【新增】檢查客人狀態 (關鍵邏輯)
-        // ----------------------------------------------------
-
-        // 先從座位表抓出這個位子的客人
         Customer currentCustomer = GameFlow.seatMap[thisPlate];
 
-        // 情況 A：根本沒有客人 (是 null)
         if (currentCustomer == null)
         {
             Debug.Log("這裡沒有客人！");
-            return; // 禁止送餐
+            return;
         }
 
-        // 情況 B：有客人，但還在走路 (還沒 Arrived)
-        // 呼叫我們剛剛在 Customer 寫的新函式
         if (!currentCustomer.IsArrived())
         {
             Debug.Log("客人還沒走到櫃台，請稍等！");
-            return; // 禁止送餐
+            return;
         }
-        // ----------------------------------------------------
 
-        // --- 核心出餐邏輯 (原本的程式碼) ---
         bool isRight = (GameFlow.orderValue[thisPlate] == GameFlow.plateValue[thisPlate]);
         float timeLeft = GameFlow.orderTimer[thisPlate];
 
         StartCoroutine(ProcessServing(isRight, timeLeft));
     }
 
-    // ... (ClearPlate 和 ProcessServing 保持原本的樣子不用動) ...
     public void ClearPlate()
     {
         if (GameFlow.plateValue[thisPlate] == 0) return;
         GameFlow.plateValue[thisPlate] = 0;
-        Debug.Log(thisPlate + " 號盤子的東西被倒掉了！");
         StartCoroutine(ShowClearEffect());
     }
 
@@ -88,17 +80,30 @@ public class ServePlate : MonoBehaviour
 
         if (isRight)
         {
-            GameFlow.totalCash += timeLeft * 10;
+            // ⭐ 播放成功音效
+            serveSuccessAudio.Play();
+
+            int basePrice = GameFlow.orderPrice[thisPlate];
+            float tip = timeLeft * 1.5f;
+            GameFlow.totalCash += (basePrice + tip);
+
             if (GameFlow.seatMap[thisPlate] != null)
                 GameFlow.seatMap[thisPlate].Leave(true);
         }
         else
         {
+            // ⭐ 播放失敗音效
+            serveFailAudio.Play();
+
             GameFlow.totalCash -= 50;
+
             if (GameFlow.seatMap[thisPlate] != null)
                 GameFlow.seatMap[thisPlate].Leave(true);
+
             Debug.Log("做錯了！");
         }
+
         GameFlow.plateValue[thisPlate] = 0;
+        GameFlow.orderPrice[thisPlate] = 0;
     }
 }

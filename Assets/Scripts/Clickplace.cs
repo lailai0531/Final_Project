@@ -28,31 +28,31 @@ public class clickplace : MonoBehaviour
         if (gameObject.name == "bunbottom")
         {
             Instantiate(cloneObj, new Vector3(GameFlow.plateXpos, 2.2f, 0.2165146f), cloneObj.rotation);
-            GameFlow.totalCash -= 3;
+            GameFlow.totalCash -= 1;
 
         }
         if (gameObject.name == "buntop")
         {
             Instantiate(cloneObj, new Vector3(GameFlow.plateXpos, 2.2f, 0.2165146f), cloneObj.rotation);
-            GameFlow.totalCash -= 3;
+            GameFlow.totalCash -= 1;
 
         }
         if (gameObject.name == "lettuce")
         {
             Instantiate(cloneObj, new Vector3(GameFlow.plateXpos, 2.2f, 0.2165146f), cloneObj.rotation);
-            GameFlow.totalCash -= 3;
+            GameFlow.totalCash -= 1;
 
         }
         if (gameObject.name == "cheese")
         {
             Instantiate(cloneObj, new Vector3(GameFlow.plateXpos, 2.2f, 0.2165146f), cloneObj.rotation);
-            GameFlow.totalCash -= 3;
+            GameFlow.totalCash -= 1;
 
         }
         if (gameObject.name == "tomato")
         {
             Instantiate(cloneObj, new Vector3(GameFlow.plateXpos, 2.2f, 0.2165146f), cloneObj.rotation);
-            GameFlow.totalCash -= 3;
+            GameFlow.totalCash -= 1;
 
         }
 

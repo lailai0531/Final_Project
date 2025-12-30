@@ -1297,7 +1297,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e30d8e5b57e3d44b9e2372638449a4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EndSceneMovement
-  moveSpeed: 3
+  moveSpeed: 5
   rotateSpeed: 10
   jumpHeight: 1.5
   gravityValue: -9.81
