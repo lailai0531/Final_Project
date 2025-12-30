@@ -1,69 +1,66 @@
 ﻿using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using UnityEngine.InputSystem; // 引用新版輸入系統
-using TMPro; // ⭐ 1. 必加：引用 TextMeshPro
-using System.Collections;
+using UnityEngine.InputSystem;
+using TMPro;
+// 這裡不需要 System.Collections 了，因為不用 Coroutine
 
 public class StoryManager : MonoBehaviour
 {
-    [Header("UI 面板")]
-    public GameObject startMenuPanel;   // 開始選單
-    public GameObject storyParentPanel; // 故事模式的父物件
+    [Header("連結 MainController")]
+    public MainController mainController;
 
-    [Header("故事分頁 (請按順序拖入)")]
+    [Header("UI 面板")]
+    public GameObject startMenuPanel;
+    public GameObject storyParentPanel;
+
+    [Header("故事分頁")]
     public GameObject[] storyPages;
 
     [Header("打字機設定")]
-    public float typingSpeed = 0.05f; // 每個字出現的間隔時間
-
-    [Header("遊戲場景名稱")]
-    public string gameSceneName = "Level1";
+    public float typingSpeed = 0.05f; // 打字速度
 
     private int currentPageIndex = 0;
-    private bool isStoryActive = false; // 是否正在看故事
-    private bool isTyping = false;      // 是否正在打字中
+    private bool isStoryActive = false;
+    private bool isTyping = false;
 
-    // 暫存當前頁面的文字元件與內容
+    // --- 計時器變數 ---
     private TextMeshProUGUI currentTextComponent;
     private string currentFullText = "";
-    private Coroutine typingCoroutine;
-
-    void Start()
-    {
-        // 初始化：顯示選單，隱藏故事
-        startMenuPanel.SetActive(true);
-        storyParentPanel.SetActive(false);
-        isStoryActive = false;
-    }
+    private float timer = 0f;      // 累積時間
+    private int charIndex = 0;     // 目前打到第幾個字
 
     void Update()
     {
-        // 如果沒在看故事，就不執行點擊偵測
+        // 沒看故事就不執行
         if (!isStoryActive) return;
 
-        // ⭐ 偵測滑鼠左鍵點擊 (任意處)
+        // 1. 處理點擊 (加速或下一頁)
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
             HandleClick();
         }
-    }
 
-    // =======================
-    // 核心邏輯
-    // =======================
+        // 2. ⭐ 核心打字邏輯 (寫在 Update 裡最穩)
+        if (isTyping && currentTextComponent != null)
+        {
+            // 使用 unscaledDeltaTime (不受 Time.timeScale = 0 影響)
+            timer += Time.unscaledDeltaTime;
 
-    private void HandleClick()
-    {
-        if (isTyping)
-        {
-            // 情況 A：還在打字中 -> 瞬間顯示全文字 (略過打字動畫)
-            CompleteTypingImmediately();
-        }
-        else
-        {
-            // 情況 B：已經打完字 -> 跳下一頁
-            GoToNextPage();
+            // 當累積時間超過打字速度，就多顯示一個字
+            while (timer >= typingSpeed && charIndex < currentFullText.Length)
+            {
+                timer -= typingSpeed; // 扣掉時間
+                charIndex++; // 推進索引
+
+                // 更新文字顯示 (取原本字串的前 charIndex 個字)
+                currentTextComponent.text = currentFullText.Substring(0, charIndex);
+            }
+
+            // 檢查是否打完了
+            if (charIndex >= currentFullText.Length)
+            {
+                isTyping = false;
+            }
         }
     }
 
@@ -75,76 +72,62 @@ public class StoryManager : MonoBehaviour
         isStoryActive = true;
         currentPageIndex = 0;
 
-        // 開始顯示第一頁
         ShowPage(currentPageIndex);
     }
 
-    // 顯示指定頁面
+    private void HandleClick()
+    {
+        if (isTyping)
+        {
+            // 還在打字 -> 瞬間顯示全部
+            CompleteTypingImmediately();
+        }
+        else
+        {
+            // 打完了 -> 下一頁
+            GoToNextPage();
+        }
+    }
+
     private void ShowPage(int index)
     {
-        // 1. 先把所有頁面關閉
-        foreach (var page in storyPages)
-        {
-            page.SetActive(false);
-        }
+        foreach (var page in storyPages) page.SetActive(false);
 
-        // 2. 開啟當前頁面
         GameObject activePage = storyPages[index];
         activePage.SetActive(true);
 
-        // 3. ⭐ 尋找該頁面底下的文字元件 (TextMeshProUGUI)
-        // 假設你的文字是放在 Page 物件底下，或是 Page 本身有文字
+        // 抓取文字元件
         currentTextComponent = activePage.GetComponentInChildren<TextMeshProUGUI>();
 
         if (currentTextComponent != null)
         {
-            // 把原本已經寫在 Inspector 裡的字存起來
-            currentFullText = currentTextComponent.text;
+            currentFullText = currentTextComponent.text; // 存下全文
+            currentTextComponent.text = ""; // 清空畫面
 
-            // 清空文字，準備開始打字
-            currentTextComponent.text = "";
-
-            // 啟動打字協程
-            if (typingCoroutine != null) StopCoroutine(typingCoroutine);
-            typingCoroutine = StartCoroutine(TypeText());
+            // ⭐ 重置計時器變數
+            timer = 0f;
+            charIndex = 0;
+            isTyping = true;
         }
         else
         {
-            // 如果這頁沒有文字元件，就直接視為打字完成
             isTyping = false;
         }
     }
 
-    // ⭐ 打字機效果的協程
-    IEnumerator TypeText()
-    {
-        isTyping = true;
-
-        foreach (char letter in currentFullText.ToCharArray())
-        {
-            currentTextComponent.text += letter;
-            yield return new WaitForSeconds(typingSpeed);
-        }
-
-        isTyping = false;
-    }
-
-    // 瞬間顯示所有文字
+    // 移除 Coroutine，改用直接設定字串
     private void CompleteTypingImmediately()
     {
-        if (typingCoroutine != null) StopCoroutine(typingCoroutine);
-
         if (currentTextComponent != null)
         {
             currentTextComponent.text = currentFullText;
+            charIndex = currentFullText.Length; // 更新索引到底
         }
-
         isTyping = false;
     }
 
     private void GoToNextPage()
     {
-        // 如果還不是最後一頁，就跳下一頁
         if (currentPageIndex < storyPages.Length - 1)
         {
             currentPageIndex++;
@@ -152,16 +135,10 @@ public class StoryManager : MonoBehaviour
         }
         else
         {
-            // 已經是最後一頁 -> 進入遊戲
             EnterGame();
         }
     }
 
-    // =======================
-    // UI 按鈕事件
-    // =======================
-
-    // 給 Skip 按鈕呼叫
     public void OnSkipClicked()
     {
         EnterGame();
@@ -169,7 +146,13 @@ public class StoryManager : MonoBehaviour
 
     private void EnterGame()
     {
-        Debug.Log("劇情結束，進入遊戲！");
-        SceneManager.LoadScene(gameSceneName);
+        Debug.Log("劇情結束，通知 MainController 開始遊戲！");
+        storyParentPanel.SetActive(false);
+        isStoryActive = false;
+
+        if (mainController != null)
+        {
+            mainController.OnStartBtnClick();
+        }
     }
 }

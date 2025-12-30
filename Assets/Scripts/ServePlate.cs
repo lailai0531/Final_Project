@@ -98,7 +98,7 @@ public class ServePlate : MonoBehaviour
             GameFlow.totalCash -= 50;
 
             if (GameFlow.seatMap[thisPlate] != null)
-                GameFlow.seatMap[thisPlate].Leave(true);
+                GameFlow.seatMap[thisPlate].Leave(false);
 
             Debug.Log("做錯了！");
         }

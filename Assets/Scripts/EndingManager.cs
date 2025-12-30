@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem; // ⭐ 1. 必加：引用輸入系統
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,16 +11,17 @@ public class EndingManager : MonoBehaviour
     [Header("生成位置")]
     public Transform spawnPoint;
 
+    [Header("場景設定")]
+    public string startSceneName = "StartMenu"; // ⭐ 請填寫你的開始畫面 Scene 名稱
+
     [Header("UI 設定")]
     public TextMeshProUGUI finalScoreText; // 顯示分數
     public TextMeshProUGUI roleTitleText;  // 顯示獲得稱號
+    public GameObject pauseMenuPanel;      // ⭐ 請拖入暫停選單 Panel
     public float fadeDuration = 1.5f;      // 淡入/淡出時間
     public float displayDuration = 2.0f;   // 停留時間
 
-    // --- ❌原本錯誤的地方 ---
-    // [Header("階級設定")]  <-- 這行不能放在 class 上面，要拿掉或往下移
-
-    // --- ✅修正後的寫法 ---
+    // --- 階級設定 ---
     [System.Serializable]
     public class Rank
     {
@@ -28,15 +30,21 @@ public class EndingManager : MonoBehaviour
         public GameObject prefab; // 對應 Prefab
     }
 
-    // ⭐ Header 要放在這裡 (List 變數的頭上)
     [Header("階級設定 (請在 Inspector 設定)")]
     public List<Rank> ranks = new List<Rank>();
 
+    // 狀態變數
+    private bool isPaused = false;
+
     void Start()
     {
-        // --- 1. 隱藏並鎖定鼠標 ---
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
+        // 0. 初始化狀態
+        if (pauseMenuPanel != null) pauseMenuPanel.SetActive(false);
+        Time.timeScale = 1f; // 確保時間流動
+        isPaused = false;
+
+        // --- 1. 隱藏並鎖定鼠標 (這是你原本的邏輯) ---
+        SetCursorState(false); // 封裝成函式方便呼叫
 
         // --- 2. 顯示分數 ---
         float finalScore = GameFlow.totalCash;
@@ -89,7 +97,91 @@ public class EndingManager : MonoBehaviour
         }
     }
 
-    // 淡入淡出邏輯
+    // ⭐ 新增 Update 偵測暫停
+    void Update()
+    {
+        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            TogglePause();
+        }
+    }
+
+    // =======================
+    // 暫停系統邏輯
+    // =======================
+    public void TogglePause()
+    {
+        isPaused = !isPaused;
+
+        if (pauseMenuPanel != null)
+            pauseMenuPanel.SetActive(isPaused);
+
+        if (isPaused)
+        {
+            // 暫停狀態：凍結時間，顯示滑鼠
+            Time.timeScale = 0f;
+            SetCursorState(true);
+        }
+        else
+        {
+            // 遊戲狀態：恢復時間，隱藏滑鼠
+            Time.timeScale = 1f;
+            SetCursorState(false);
+        }
+    }
+
+    // 小工具：切換滑鼠顯示/隱藏
+    private void SetCursorState(bool show)
+    {
+        if (show)
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
+        else
+        {
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+    }
+
+    // =======================
+    // UI 按鈕事件
+    // =======================
+
+    // 1. Continue 按鈕
+    public void OnContinueClicked()
+    {
+        TogglePause(); // 直接呼叫切換，就會關閉選單並恢復
+    }
+
+    // 2. Restart 按鈕 (回到最一開始的場景)
+    public void OnRestartClicked()
+    {
+        Time.timeScale = 1f; // 恢復時間很重要，不然下一關會卡住
+
+        GameFlow.ResetStatics();
+        GameFlow.gameTime = 0f;
+
+        SceneManager.LoadScene(startSceneName);
+    }
+
+    // 3. Exit 按鈕
+    public void OnExitClicked()
+    {
+        Debug.Log("Quit Game");
+        Application.Quit();
+    }
+
+    // 原本的回主選單按鈕 (如果有保留這顆按鈕的話可沿用，功能同 Restart)
+    public void GoToMainMenu()
+    {
+        OnRestartClicked();
+    }
+
+    // =======================
+    // 動畫邏輯 (維持不變)
+    // =======================
     IEnumerator FadeTextRoutine()
     {
         // 淡入
@@ -114,17 +206,5 @@ public class EndingManager : MonoBehaviour
             yield return null;
         }
         roleTitleText.alpha = 0f;
-    }
-
-    // 回主選單按鈕
-    public void GoToMainMenu()
-    {
-        // 解除鼠標鎖定，不然點不到按鈕
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
-
-        GameFlow.ResetStatics();
-        GameFlow.gameTime = 0f;
-        SceneManager.LoadScene("StartMenu");
     }
 }

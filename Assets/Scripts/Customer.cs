@@ -168,11 +168,15 @@ public class Customer : MonoBehaviour
     {
         if (mySeatIndex != -1)
         {
-            GameFlow.totalCash -= 80;
             GameFlow.seatMap[mySeatIndex] = null;
             GameFlow.orderValue[mySeatIndex] = 0;
             // ⭐【新增】離開時清除價格
             GameFlow.orderPrice[mySeatIndex] = 0;
+            if(isHappy == false)
+            {
+                GameFlow.totalCash -= 60;
+
+            }
         }
 
         Destroy(gameObject);
