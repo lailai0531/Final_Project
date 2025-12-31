@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Xml.Linq;
 using UnityEngine;
 
 public class clickplace : MonoBehaviour
@@ -20,6 +21,7 @@ public class clickplace : MonoBehaviour
 
     public void Interact()
     {
+        Debug.Log("【除錯】你點到的物件名字是：" + gameObject.name );
         if (placeAudio != null)
         {
             placeAudio.PlayOneShot(placeAudio.clip);
@@ -49,10 +51,11 @@ public class clickplace : MonoBehaviour
             GameFlow.totalCash -= 1;
 
         }
-        if (gameObject.name == "tomato")
+        if (gameObject.name.Contains( "tomato"))
         {
             Instantiate(cloneObj, new Vector3(GameFlow.plateXpos, 2.2f, 0.2165146f), cloneObj.rotation);
             GameFlow.totalCash -= 1;
+            Destroy(gameObject);
 
         }
 
