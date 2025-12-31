@@ -2124,7 +2124,7 @@ MonoBehaviour:
   displayDuration: 2
   ranks:
   - rankName: Pumpkin
-    minScore: 0
+    minScore: -10000000
     prefab: {fileID: 6821105822345529160, guid: 993505a78400d894092878a081895250, type: 3}
   - rankName: Pig
     minScore: 500

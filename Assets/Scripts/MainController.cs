@@ -144,7 +144,7 @@ public class MainController : MonoBehaviour
             gameOverPanel.SetActive(true);
             if (finalScoreText != null)
             {
-                finalScoreText.text = $"Score: {GameFlow.totalCash:0}";
+                finalScoreText.text = $"Gong Der: {GameFlow.totalCash:0}";
             }
         }
     }
@@ -174,7 +174,7 @@ public class MainController : MonoBehaviour
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
             foreach (var script in playerScripts) if (script != null) script.enabled = false;
-            if (scoreText != null) scoreText.text = $"Score : {GameFlow.totalCash:0}";
+            if (scoreText != null) scoreText.text = $"Gong Der: {GameFlow.totalCash:0}";
         }
         else
         {
@@ -203,6 +203,6 @@ public class MainController : MonoBehaviour
 
     private void UpdateScoreUI()
     {
-        if (scoreText != null) scoreText.text = $"Score : {score}";
+        if (scoreText != null) scoreText.text = $"Gong Der: {score}";
     }
 }
