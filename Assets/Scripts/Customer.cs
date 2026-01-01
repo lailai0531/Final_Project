@@ -26,7 +26,7 @@ public class Customer : MonoBehaviour
     // 例如: 111111(漢堡)賣120元, 111101(薯條)賣80元...請依序填入
     private int[] menuPrices = { 100, 60, 60, 40 };
 
-    private float myTime = 30f;
+    private float myTime = 50f;
 
     void Awake()
     {

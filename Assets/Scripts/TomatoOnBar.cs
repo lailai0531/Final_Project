@@ -7,8 +7,8 @@ public class TomatoBar : MonoBehaviour
     public Transform boardPosition;
 
     [Header("音效")]
-    public AudioClip moveSound;
-    [Range(0, 1)] public float volume = 1.0f;
+    // 修改 1: 改成 AudioSource，跟 clickplace 一樣
+    [SerializeField] private AudioSource moveAudio;
 
     private void OnMouseDown()
     {
@@ -19,24 +19,32 @@ public class TomatoBar : MonoBehaviour
         if (boardTomatoPrefab == null)
         {
             Debug.LogError("【錯誤】Board Tomato Prefab 是空的！請去 Inspector 拉進去！");
-            return; // 停在這裡不要往下跑
+            return;
         }
 
-        // 1. 播放移動音效
-        if (moveSound != null)
+        // 修改 2: 使用 AudioSource 播放 (跟 clickplace 一樣的寫法)
+        if (moveAudio != null)
         {
-            AudioSource.PlayClipAtPoint(moveSound, transform.position, volume);
-            Debug.Log("【測試】播放音效成功");
+            // 確保 AudioSource 裡面有放音效檔
+            if (moveAudio.clip != null)
+            {
+                moveAudio.PlayOneShot(moveAudio.clip);
+                Debug.Log("【測試】播放音效成功");
+            }
+            else
+            {
+                Debug.LogWarning("【警告】AudioSource 元件掛了，但裡面沒有放音效檔 (AudioClip)！");
+            }
         }
         else
         {
-            Debug.LogWarning("【警告】沒聲音，因為 Move Sound 沒拉音效檔");
+            Debug.LogWarning("【警告】沒聲音，因為 Move Audio 沒拉 AudioSource！");
         }
 
         // 2. 生成新番茄
         Vector3 spawnPos = (boardPosition != null) ? boardPosition.position : new Vector3(0, 1.75f, -1.8f);
         Instantiate(boardTomatoPrefab, spawnPos, Quaternion.identity);
 
-        Debug.Log("【測試】生成新番茄成功，準備自我銷毀");
+        Debug.Log("【測試】生成新番茄成功");
     }
 }

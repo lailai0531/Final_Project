@@ -50,7 +50,7 @@ public class EndingManager : MonoBehaviour
         float finalScore = GameFlow.totalCash;
         if (finalScoreText != null)
         {
-            finalScoreText.text = "Final Score: " + finalScore;
+            finalScoreText.text = "Final Gong Der: " + finalScore;
         }
 
         // --- 3. 決定角色 ---

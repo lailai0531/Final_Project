@@ -6,7 +6,10 @@ public class tomato_uncut_con : MonoBehaviour
     public Transform cutTomatoPrefab; // 切好的番茄 Prefab
 
     [Header("音效")]
-    public AudioClip chopSound;
+    // 修改 1: 改成 AudioSource，讓操作介面統一
+    [SerializeField] private AudioSource chopAudio;
+
+    // 這個音量控制保留給 PlayClipAtPoint 使用
     [Range(0, 1)] public float volume = 1.0f;
 
     private void OnMouseDown()
@@ -18,15 +21,28 @@ public class tomato_uncut_con : MonoBehaviour
             return;
         }
 
-        // 2. 播放音效
-        if (chopSound != null)
+        // 2. 播放音效 (修改過的邏輯)
+        if (chopAudio != null)
         {
-            AudioSource.PlayClipAtPoint(chopSound, transform.position, volume);
+            // 確保 AudioSource 裡面有放音效檔
+            if (chopAudio.clip != null)
+            {
+                // 【重要】因為下面馬上要 Destroy，所以不能用 chopAudio.PlayOneShot()
+                // 必須改用 PlayClipAtPoint (在原地生成一個暫時的聲音)
+                // 我們讀取 chopAudio 裡的 clip 來播放
+                AudioSource.PlayClipAtPoint(chopAudio.clip, transform.position, volume);
+            }
+            else
+            {
+                Debug.LogWarning("【警告】AudioSource 裡沒有放音效檔 (AudioClip)！");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("【警告】沒聲音，因為 Chop Audio 欄位沒拉 AudioSource！");
         }
 
-        // 3. 【核心邏輯】就在「原本番茄的位置」生成
-        // transform.position = 我現在在哪，新的就在哪
-        // transform.rotation = 我原本怎麼轉，新的就怎麼轉 (如果你希望切好的番茄轉向一致，這裡改成 cutTomatoPrefab.rotation)
+        // 3. 【核心邏輯】在原地生成切好的番茄
         Instantiate(cutTomatoPrefab, transform.position, transform.rotation);
 
         Debug.Log("已在座標 " + transform.position + " 生成切好番茄");
