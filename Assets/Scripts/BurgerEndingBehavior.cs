@@ -97,7 +97,7 @@ public class BurgerEndingBehavior : MonoBehaviour
 
         // --- 階段 4: 咬下去 ---
 
-        yield return new WaitForSeconds(0.7f); // 鏡頭到了之後稍微停一下再咬
+        yield return new WaitForSeconds(4.5f); // 鏡頭到了之後稍微停一下再咬
 
         if (audioSource != null && biteSound != null)
         {
