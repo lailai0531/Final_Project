@@ -19,6 +19,39 @@ AudioMixerGroupController:
   m_Mute: 0
   m_Solo: 0
   m_BypassEffects: 0
+--- !u!243 &-5844100748036548877
+AudioMixerGroupController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: SFX loud
+  m_AudioMixer: {fileID: 24100000}
+  m_GroupID: aad969817a6ab2e41b09fa4d3dbd9fa6
+  m_Children: []
+  m_Volume: 594823cd53e5ed34f936785c0e8b7373
+  m_Pitch: e474cbcef09ad34479d50b6eec148b4c
+  m_Send: 00000000000000000000000000000000
+  m_Effects:
+  - {fileID: -4655058962530639573}
+  m_UserColorIndex: 0
+  m_Mute: 0
+  m_Solo: 0
+  m_BypassEffects: 0
+--- !u!244 &-4655058962530639573
+AudioMixerEffectController:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_EffectID: 931f6d4742f34c24892e1dbea9ff3ad7
+  m_EffectName: Attenuation
+  m_MixLevel: cd025b7cde9ba824cbfdffd50a11fb6a
+  m_Parameters: []
+  m_SendTarget: {fileID: 0}
+  m_EnableWetMix: 0
+  m_Bypass: 0
 --- !u!241 &24100000
 AudioMixerController:
   m_ObjectHideFlags: 0
@@ -42,6 +75,7 @@ AudioMixerController:
     - 09c5d2c144207744e8b79abd459be2e7
     - 00b8b846d70726c4d80ab19421cd58c6
     - f68eb0ccd6b117940a1328c66d7eb46c
+    - aad969817a6ab2e41b09fa4d3dbd9fa6
     name: View
   m_CurrentViewIndex: 0
   m_TargetSnapshot: {fileID: 24500006}
@@ -57,6 +91,7 @@ AudioMixerGroupController:
   m_Children:
   - {fileID: -7646183739539346795}
   - {fileID: 4549313259968675979}
+  - {fileID: -5844100748036548877}
   m_Volume: b6c58a4988842054cafc1d10ed7eb840
   m_Pitch: 4fb37d9e0c5d4644191950793d0542ca
   m_Send: 00000000000000000000000000000000
@@ -91,7 +126,8 @@ AudioMixerSnapshotController:
   m_SnapshotID: 5f8caede05d19164b867c559126a3e22
   m_FloatValues:
     731caf848277866468682658beba0773: 10.265721
-    916f15996f63d1b4b911ac769130652c: 0
+    916f15996f63d1b4b911ac769130652c: -0.27209944
+    594823cd53e5ed34f936785c0e8b7373: -5.1278496
   m_TransitionOverrides: {}
 --- !u!244 &2993486131200208408
 AudioMixerEffectController:

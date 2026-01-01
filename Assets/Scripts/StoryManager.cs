@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using TMPro;
-// 這裡不需要 System.Collections 了，因為不用 Coroutine
+using UnityEngine.EventSystems;
 
 public class StoryManager : MonoBehaviour
 {
@@ -17,7 +17,11 @@ public class StoryManager : MonoBehaviour
     public GameObject[] storyPages;
 
     [Header("打字機設定")]
-    public float typingSpeed = 0.05f; // 打字速度
+    public float typingSpeed = 0.05f;
+
+    [Header("音效設定")]
+    public AudioSource audioSource;       // 請確保這個 AudioSource 在 Inspector 有掛上你的長音效
+    // public AudioClip typeSound;        // ⭐ 這裡不需要了，直接用 AudioSource 上的 Clip
 
     private int currentPageIndex = 0;
     private bool isStoryActive = false;
@@ -26,41 +30,69 @@ public class StoryManager : MonoBehaviour
     // --- 計時器變數 ---
     private TextMeshProUGUI currentTextComponent;
     private string currentFullText = "";
-    private float timer = 0f;      // 累積時間
-    private int charIndex = 0;     // 目前打到第幾個字
+    private float timer = 0f;
+    private int charIndex = 0;
+
+    void Start()
+    {
+        // ⭐ 【重要】確保音效設定為循環播放
+        if (audioSource != null)
+        {
+            audioSource.loop = true; // 設定為循環，這樣它會一直打字直到我們叫它停
+            audioSource.Stop();      // 一開始先不要播
+        }
+    }
 
     void Update()
     {
-        // 沒看故事就不執行
         if (!isStoryActive) return;
 
-        // 1. 處理點擊 (加速或下一頁)
+        // 1. 處理點擊
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
             HandleClick();
         }
 
-        // 2. ⭐ 核心打字邏輯 (寫在 Update 裡最穩)
+        // 2. 打字邏輯
         if (isTyping && currentTextComponent != null)
         {
-            // 使用 unscaledDeltaTime (不受 Time.timeScale = 0 影響)
             timer += Time.unscaledDeltaTime;
 
-            // 當累積時間超過打字速度，就多顯示一個字
             while (timer >= typingSpeed && charIndex < currentFullText.Length)
             {
-                timer -= typingSpeed; // 扣掉時間
-                charIndex++; // 推進索引
-
-                // 更新文字顯示 (取原本字串的前 charIndex 個字)
+                timer -= typingSpeed;
+                charIndex++;
                 currentTextComponent.text = currentFullText.Substring(0, charIndex);
+
+                // ⭐ 這裡把原本的 PlayTypingSound() 拿掉了，因為我們改成持續播放
             }
 
             // 檢查是否打完了
             if (charIndex >= currentFullText.Length)
             {
                 isTyping = false;
+
+                // ⭐ 【新增】打字結束，停止音效
+                StopTypingSound();
             }
+        }
+    }
+
+    // ⭐ 【新增】控制音效的函式：開始
+    void StartTypingSound()
+    {
+        if (audioSource != null && !audioSource.isPlaying)
+        {
+            audioSource.Play();
+        }
+    }
+
+    // ⭐ 【新增】控制音效的函式：停止
+    void StopTypingSound()
+    {
+        if (audioSource != null && audioSource.isPlaying)
+        {
+            audioSource.Stop();
         }
     }
 
@@ -79,12 +111,10 @@ public class StoryManager : MonoBehaviour
     {
         if (isTyping)
         {
-            // 還在打字 -> 瞬間顯示全部
             CompleteTypingImmediately();
         }
         else
         {
-            // 打完了 -> 下一頁
             GoToNextPage();
         }
     }
@@ -96,18 +126,19 @@ public class StoryManager : MonoBehaviour
         GameObject activePage = storyPages[index];
         activePage.SetActive(true);
 
-        // 抓取文字元件
         currentTextComponent = activePage.GetComponentInChildren<TextMeshProUGUI>();
 
         if (currentTextComponent != null)
         {
-            currentFullText = currentTextComponent.text; // 存下全文
-            currentTextComponent.text = ""; // 清空畫面
+            currentFullText = currentTextComponent.text;
+            currentTextComponent.text = "";
 
-            // ⭐ 重置計時器變數
             timer = 0f;
             charIndex = 0;
             isTyping = true;
+
+            // ⭐ 【新增】新的一頁開始打字，播放音效
+            StartTypingSound();
         }
         else
         {
@@ -115,19 +146,24 @@ public class StoryManager : MonoBehaviour
         }
     }
 
-    // 移除 Coroutine，改用直接設定字串
     private void CompleteTypingImmediately()
     {
         if (currentTextComponent != null)
         {
             currentTextComponent.text = currentFullText;
-            charIndex = currentFullText.Length; // 更新索引到底
+            charIndex = currentFullText.Length;
         }
         isTyping = false;
+
+        // ⭐ 【新增】玩家強制跳過，立刻停止音效
+        StopTypingSound();
     }
 
     private void GoToNextPage()
     {
+        // 確保換頁時音效一定有關掉 (雙重保險)
+        StopTypingSound();
+
         if (currentPageIndex < storyPages.Length - 1)
         {
             currentPageIndex++;
@@ -146,6 +182,8 @@ public class StoryManager : MonoBehaviour
 
     private void EnterGame()
     {
+        StopTypingSound(); // 離開劇情模式也要關聲音
+
         Debug.Log("劇情結束，通知 MainController 開始遊戲！");
         storyParentPanel.SetActive(false);
         isStoryActive = false;

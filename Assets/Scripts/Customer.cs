@@ -17,6 +17,10 @@ public class Customer : MonoBehaviour
     private int mySeatIndex = -1;
     private bool hasArrived = false;
 
+    [Header("音效")]
+    [SerializeField] private AudioSource leaveSFX;
+
+
     private Image sliderFillImage;
 
     // 菜單代碼 (對應 GameFlow 的 Sprite 順序)
@@ -74,7 +78,9 @@ public class Customer : MonoBehaviour
 
             if (currentTime <= 0)
             {
-                Leave(false);
+                AudioSource.PlayClipAtPoint(leaveSFX.clip, Camera.main.transform.position, 1.0f);
+                GameFlow.totalCash -= 60;
+                Leave(false, 60);
             }
         }
     }
@@ -164,7 +170,7 @@ public class Customer : MonoBehaviour
         }
     }
 
-    public void Leave(bool isHappy)
+    public void Leave(bool isHappy, int price)
     {
         if (mySeatIndex != -1)
         {
@@ -174,8 +180,11 @@ public class Customer : MonoBehaviour
             GameFlow.orderPrice[mySeatIndex] = 0;
             if(isHappy == false)
             {
-                GameFlow.totalCash -= 60;
-
+                FloatingTextManager.Instance.ShowText("-" + price, transform.position - Vector3.up * 2f, Color.red);
+            }
+            else
+            {
+                FloatingTextManager.Instance.ShowText("+" + price, transform.position - Vector3.up * 2f, Color.green);
             }
         }
 

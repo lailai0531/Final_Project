@@ -2133,7 +2133,7 @@ MonoBehaviour:
     minScore: 800
     prefab: {fileID: 3844977645777730958, guid: 10b70df759961694e987185238ac7c5f, type: 3}
   - rankName: Streaker
-    minScore: 1200
+    minScore: 1000
     prefab: {fileID: 6823948555944409794, guid: 018a7d019ad677c4492ef35b7be8f739, type: 3}
 --- !u!4 &260307652
 Transform:

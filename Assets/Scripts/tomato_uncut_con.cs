@@ -1,53 +1,46 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class tomato_uncut_con : MonoBehaviour
 {
-    [Header("³]©w")]
-    public Transform cutTomatoPrefab; // ¤Á¦nªºµf­X Prefab
+    [Header("è¨­å®š")]
+    public Transform cutTomatoPrefab; // åˆ‡å¥½çš„ç•ªèŒ„ Prefab
 
-    [Header("­µ®Ä")]
-    // ­×§ï 1: §ï¦¨ AudioSource¡AÅı¾Ş§@¤¶­±²Î¤@
-    [SerializeField] private AudioSource chopAudio;
+    [Header("ç‰¹æ•ˆ")]
+    public GameObject particlePrefab; // â­ æ–°å¢ï¼šè«‹æŠŠä½ çš„ç…™éœ§/ç¢å±‘ç²’å­ Prefab æ‹–é€²ä¾†
 
-    // ³o­Ó­µ¶q±±¨î«O¯dµ¹ PlayClipAtPoint ¨Ï¥Î
-    [Range(0, 1)] public float volume = 1.0f;
+    [Header("éŸ³æ•ˆ")]
+    [SerializeField] private AudioSource chopSFX;
 
     private void OnMouseDown()
     {
-        // 1. ÀË¬d Prefab
-        if (cutTomatoPrefab == null)
-        {
-            Debug.LogError("¡i¿ù»~¡j¤Á¦nµf­Xªº Prefab ¨S©Ô¡I");
-            return;
-        }
+        // (é¸ç”¨) å»ºè­°åŠ ä¸ŠéŠæˆ²ç‹€æ…‹æª¢æŸ¥ï¼Œé¿å…æš«åœæ™‚é‚„èƒ½åˆ‡
+        if (!MainController.isGameRunning) return;
 
-        // 2. ¼½©ñ­µ®Ä (­×§ï¹LªºÅŞ¿è)
-        if (chopAudio != null)
-        {
-            // ½T«O AudioSource ¸Ì­±¦³©ñ­µ®ÄÀÉ
-            if (chopAudio.clip != null)
-            {
-                // ¡i­«­n¡j¦]¬°¤U­±°¨¤W­n Destroy¡A©Ò¥H¤£¯à¥Î chopAudio.PlayOneShot()
-                // ¥²¶·§ï¥Î PlayClipAtPoint (¦b­ì¦a¥Í¦¨¤@­Ó¼È®ÉªºÁn­µ)
-                // §Ú­ÌÅª¨ú chopAudio ¸Ìªº clip ¨Ó¼½©ñ
-                AudioSource.PlayClipAtPoint(chopAudio.clip, transform.position, volume);
-            }
-            else
-            {
-                Debug.LogWarning("¡iÄµ§i¡jAudioSource ¸Ì¨S¦³©ñ­µ®ÄÀÉ (AudioClip)¡I");
-            }
-        }
-        else
-        {
-            Debug.LogWarning("¡iÄµ§i¡j¨SÁn­µ¡A¦]¬° Chop Audio Äæ¦ì¨S©Ô AudioSource¡I");
-        }
+        Debug.Log("åˆ‡èœå‹•ä½œåŸ·è¡Œ");
 
-        // 3. ¡i®Ö¤ßÅŞ¿è¡j¦b­ì¦a¥Í¦¨¤Á¦nªºµf­X
+        if (cutTomatoPrefab == null) return;
+
+        // 1. ç”Ÿæˆåˆ‡å¥½çš„ç•ªèŒ„ (ç¹¼æ‰¿åŸæœ¬çš„ä½ç½®å’Œæ—‹è½‰)
         Instantiate(cutTomatoPrefab, transform.position, transform.rotation);
 
-        Debug.Log("¤w¦b®y¼Ğ " + transform.position + " ¥Í¦¨¤Á¦nµf­X");
+        // 2. â­ ç”Ÿæˆç²’å­ç‰¹æ•ˆ
+        if (particlePrefab != null)
+        {
+            // åœ¨ç•ªèŒ„çš„ä½ç½®ç”Ÿæˆç‰¹æ•ˆï¼ŒQuaternion.identity ä»£è¡¨ä¸æ—‹è½‰(ä¸–ç•Œåº§æ¨™æ–¹å‘)
+            GameObject vfx = Instantiate(particlePrefab, transform.position, Quaternion.identity);
 
-        // 4. ÂÂªº®ø¥¢
+            // 2ç§’å¾Œè‡ªå‹•éŠ·æ¯€ç‰¹æ•ˆç‰©ä»¶ï¼Œé¿å…å ´æ™¯åƒåœ¾å †ç©
+            Destroy(vfx, 2.0f);
+        }
+
+        // 3. æ’­æ”¾éŸ³æ•ˆ
+        // å› ç‚ºé€™å€‹ç‰©ä»¶é¦¬ä¸Šè¦ Destroyï¼Œæ‰€ä»¥å¿…é ˆç”¨ PlayClipAtPointï¼Œä¸ç„¶è²éŸ³æœƒæ–·æ‰
+        if (chopSFX != null && chopSFX.clip != null)
+        {
+            AudioSource.PlayClipAtPoint(chopSFX.clip, Camera.main.transform.position, 1.0f);
+        }
+
+        // 4. éŠ·æ¯€åŸæœ¬é‚„æ²’åˆ‡çš„ç•ªèŒ„
         Destroy(gameObject);
     }
 }

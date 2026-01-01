@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class MainController : MonoBehaviour
 {
+    public static bool isGameRunning = false;
+
     [Header("Game Settings")]
     public float gameDuration = 60f; // 遊戲限時
     public string nextSceneName = "Level2"; // 下一關場景名稱
@@ -29,7 +31,7 @@ public class MainController : MonoBehaviour
 
     // 狀態變數
     private bool isPaused = false;
-    private bool isGameStarted = false;
+    public bool isGameStarted = false;
     private bool isGameOver = false;
     private int score = 0;
 
@@ -37,6 +39,7 @@ public class MainController : MonoBehaviour
     {
         Time.timeScale = 0f;
         isGameStarted = false;
+        isGameRunning = false;
 
         // 1. 一開始先把主角隱藏 (因為要先看劇情)
         if (playerObject != null) playerObject.SetActive(false);
@@ -86,7 +89,7 @@ public class MainController : MonoBehaviour
         ActivateTargets();
         GameFlow.ResetStatics();
         isGameOver = false;
-
+        isGameRunning = true;
         EnterGameplayState();
     }
 
@@ -124,6 +127,7 @@ public class MainController : MonoBehaviour
     {
         isGameOver = true;
         isGameStarted = false;
+        isGameRunning= false;
         Time.timeScale = 0f;
 
         // 解鎖滑鼠

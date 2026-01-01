@@ -1,50 +1,38 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class TomatoBar : MonoBehaviour
 {
-    [Header("³]©w")]
+    [Header("è¨­å®š")]
     public GameObject boardTomatoPrefab;
     public Transform boardPosition;
 
-    [Header("­µ®Ä")]
-    // ­×§ï 1: §ï¦¨ AudioSource¡A¸ò clickplace ¤@¼Ë
-    [SerializeField] private AudioSource moveAudio;
+    [Header("éŸ³æ•ˆæ›¿èº«")]
+    // é€™è£¡æ”¹ç”¨ GameObjectï¼Œå› ç‚ºæˆ‘ä»¬è¦ç”Ÿæˆé‚£å€‹è—è‰²æ–¹å¡Š(Prefab)
+    [SerializeField] private AudioSource placeAudio;
+
 
     private void OnMouseDown()
     {
-        // --- Debug 1: ´ú¸Õ¦³¨S¦³·PÀ³¨ìÂIÀ» ---
-        Debug.Log("¡i´ú¸Õ¡j·Æ¹«ÂI¨ì§a¥xµf­X¤F¡Iª«¥ó¦WºÙ¡G" + gameObject.name);
-
-        // ÀË¬d Prefab ¦³¨S¦³©Ô
-        if (boardTomatoPrefab == null)
+        if (!MainController.isGameRunning) return;
+        // 1. æ’­æ”¾éŸ³æ•ˆ (ç”Ÿæˆæ›¿èº«)
+        if (placeAudio != null)
         {
-            Debug.LogError("¡i¿ù»~¡jBoard Tomato Prefab ¬OªÅªº¡I½Ğ¥h Inspector ©Ô¶i¥h¡I");
-            return;
-        }
-
-        // ­×§ï 2: ¨Ï¥Î AudioSource ¼½©ñ (¸ò clickplace ¤@¼Ëªº¼gªk)
-        if (moveAudio != null)
-        {
-            // ½T«O AudioSource ¸Ì­±¦³©ñ­µ®ÄÀÉ
-            if (moveAudio.clip != null)
-            {
-                moveAudio.PlayOneShot(moveAudio.clip);
-                Debug.Log("¡i´ú¸Õ¡j¼½©ñ­µ®Ä¦¨¥\");
-            }
-            else
-            {
-                Debug.LogWarning("¡iÄµ§i¡jAudioSource ¤¸¥ó±¾¤F¡A¦ı¸Ì­±¨S¦³©ñ­µ®ÄÀÉ (AudioClip)¡I");
-            }
+            placeAudio.Play();
         }
         else
         {
-            Debug.LogWarning("¡iÄµ§i¡j¨SÁn­µ¡A¦]¬° Move Audio ¨S©Ô AudioSource¡I");
+            Debug.LogWarning("ã€è­¦å‘Šã€‘æ²’è²éŸ³ï¼Œè«‹æŠŠåšå¥½çš„éŸ³æ•ˆ Prefab æ‹‰é€² Sound Prefab æ¬„ä½ï¼");
         }
 
-        // 2. ¥Í¦¨·sµf­X
-        Vector3 spawnPos = (boardPosition != null) ? boardPosition.position : new Vector3(0, 1.75f, -1.8f);
-        Instantiate(boardTomatoPrefab, spawnPos, Quaternion.identity);
+        // 2. ç”Ÿæˆæ–°ç•ªèŒ„åˆ°ç §æ¿
+        if (boardTomatoPrefab != null)
+        {
+            Vector3 spawnPos = (boardPosition != null) ? boardPosition.position : new Vector3(0, 1.75f, -1.8f);
+            Instantiate(boardTomatoPrefab, spawnPos, Quaternion.identity);
+            Debug.Log("ã€æ¸¬è©¦ã€‘ç”Ÿæˆæ–°ç•ªèŒ„æˆåŠŸ");
+        }
 
-        Debug.Log("¡i´ú¸Õ¡j¥Í¦¨·sµf­X¦¨¥\");
+        // 3. (é¸ç”¨) é€™è£¡å¦‚æœä½ è¦ Destroy å§å°ç•ªèŒ„ä¹Ÿå¯ä»¥ï¼Œå› ç‚ºè²éŸ³å·²ç¶“äº¤çµ¦æ›¿èº«äº†
+        // Destroy(gameObject); 
     }
 }

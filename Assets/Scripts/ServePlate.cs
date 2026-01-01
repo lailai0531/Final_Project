@@ -84,11 +84,12 @@ public class ServePlate : MonoBehaviour
             serveSuccessAudio.Play();
 
             int basePrice = GameFlow.orderPrice[thisPlate];
-            float tip = timeLeft * 1.5f;
+            float tip = timeLeft * 1f;
             GameFlow.totalCash += (basePrice + tip);
-
+            int price = (int)(basePrice + tip);
+            //FloatingTextManager.Instance.ShowText("+" + price, transform.position + Vector3.up * 2f, Color.yellow);
             if (GameFlow.seatMap[thisPlate] != null)
-                GameFlow.seatMap[thisPlate].Leave(true);
+                GameFlow.seatMap[thisPlate].Leave(true, price);
         }
         else
         {
@@ -98,7 +99,7 @@ public class ServePlate : MonoBehaviour
             GameFlow.totalCash -= 50;
 
             if (GameFlow.seatMap[thisPlate] != null)
-                GameFlow.seatMap[thisPlate].Leave(false);
+                GameFlow.seatMap[thisPlate].Leave(false, 50);
 
             Debug.Log("做錯了！");
         }
