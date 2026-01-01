@@ -38,33 +38,25 @@ public class EndingManager : MonoBehaviour
 
     void Start()
     {
-        // 0. 初始化狀態
+        // 0. 初始化
         if (pauseMenuPanel != null) pauseMenuPanel.SetActive(false);
-        Time.timeScale = 1f; // 確保時間流動
-        isPaused = false;
+        Time.timeScale = 1f;
+        SetCursorState(false);
 
-        // --- 1. 隱藏並鎖定鼠標 (這是你原本的邏輯) ---
-        SetCursorState(false); // 封裝成函式方便呼叫
-
-        // --- 2. 顯示分數 ---
+        // 1. UI 顯示分數 (略) ...
         float finalScore = GameFlow.totalCash;
-        if (finalScoreText != null)
-        {
-            finalScoreText.text = "Final Gong Der: " + finalScore;
-        }
+        if (finalScoreText != null) finalScoreText.text = "Final Score: " + finalScore;
 
-        // --- 3. 決定角色 ---
+        // 2. 決定角色 (略) ...
         GameObject prefabToSpawn = null;
         string currentRankName = "";
 
-        // 預設最低階 (避免清單為空時報錯)
+        // ... (這裡保留你原本的排序邏輯) ...
         if (ranks.Count > 0)
         {
             prefabToSpawn = ranks[ranks.Count - 1].prefab;
             currentRankName = ranks[ranks.Count - 1].rankName;
         }
-
-        // 排序並比對 (由高分到低分)
         var sortedRanks = ranks.OrderByDescending(x => x.minScore).ToList();
         foreach (var rank in sortedRanks)
         {
@@ -76,19 +68,43 @@ public class EndingManager : MonoBehaviour
             }
         }
 
-        // --- 4. 生成角色與攝影機 ---
+        // --- 3. ⭐ 修改重點：生成角色與攝影機判斷 ---
         if (prefabToSpawn != null && spawnPoint != null)
         {
             GameObject playerObj = Instantiate(prefabToSpawn, spawnPoint.position, spawnPoint.rotation);
 
-            if (Camera.main != null)
+            // 檢查這個生成的東西，是不是漢堡
+            var burgerScript = playerObj.GetComponent<BurgerEndingBehavior>();
+
+            // 取得主攝影機腳本
+            var camScript = (Camera.main != null) ? Camera.main.GetComponent<ThirdPersonCamera>() : null;
+
+            if (burgerScript != null)
             {
-                var camScript = Camera.main.GetComponent<ThirdPersonCamera>();
-                if (camScript != null) camScript.target = playerObj.transform;
+                // 🔥 A. 如果是漢堡：
+                // 絕對不要設定 camScript.target！
+                // 甚至要「主動關閉」攝影機腳本，以免它亂動
+                if (camScript != null)
+                {
+                    camScript.target = null;   // 清空目標
+                    camScript.enabled = false; // 立即關閉追蹤功能
+                }
+
+                // 漢堡自己的 Start() 會負責接手後續的運鏡
+            }
+            else
+            {
+                // B. 如果是普通角色 (富翁/乞丐)：
+                // 照常啟用第三人稱攝影機
+                if (camScript != null)
+                {
+                    camScript.enabled = true; // 確保它是開的
+                    camScript.target = playerObj.transform; // 綁定目標
+                }
             }
         }
 
-        // --- 5. 執行文字淡入淡出動畫 ---
+        // 4. UI 動畫 (略) ...
         if (roleTitleText != null)
         {
             roleTitleText.text = currentRankName;
