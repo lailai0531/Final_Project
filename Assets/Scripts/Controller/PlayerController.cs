@@ -8,7 +8,6 @@ namespace Controller
     {
         [Header("Components")]
         [SerializeField] private Animator animator;
-        // 現在只需要一個相機
         [SerializeField] private Transform playerCamera;
 
         [Header("Movement Settings")]
@@ -36,7 +35,6 @@ namespace Controller
             _jumpId = Animator.StringToHash(jumpTriggerName);
             _actions = new InputSystem_Actions();
 
-            // 自動抓取主相機，省去手動拉的動作（如果場景中有 MainCamera）
             if (playerCamera == null && Camera.main != null)
             {
                 playerCamera = Camera.main.transform;
@@ -50,7 +48,6 @@ namespace Controller
         {
             if (playerCamera == null) return;
 
-            // 1. 取得移動方向 (相對於相機)
             _moveInput = _actions.Player.Move.ReadValue<Vector2>();
 
             Vector3 forward = playerCamera.forward;
@@ -62,11 +59,9 @@ namespace Controller
 
             Vector3 moveDirection = forward * _moveInput.y + right * _moveInput.x;
 
-            // 2. 處理速度與動畫
             bool isSprinting = _actions.Player.Sprint.IsPressed();
             float targetSpeed = isSprinting ? sprintSpeed : walkSpeed;
 
-            // 這裡直接用 moveDirection 帶入移動
             Vector3 horizontalMove = moveDirection * targetSpeed;
 
             if (animator)
@@ -75,17 +70,14 @@ namespace Controller
                 animator.SetBool(_sprintId, isSprinting);
             }
 
-            // 3. 旋轉角色 (如果是第一人稱，通常角色會跟著相機轉)
             if (moveDirection.sqrMagnitude > 0.01f)
             {
-                // 如果是 FPS，你也可以讓角色始終跟隨相機水平轉向
                 transform.rotation = Quaternion.LookRotation(forward);
             }
 
-            // 4. 重力與跳躍
             if (_controller.isGrounded && _velocity.y < 0)
             {
-                _velocity.y = -2f; // 保持接地
+                _velocity.y = -2f; 
             }
 
             if (_actions.Player.Jump.WasPressedThisFrame() && _controller.isGrounded)
@@ -96,7 +88,6 @@ namespace Controller
 
             _velocity.y += gravity * Time.deltaTime;
 
-            // 5. 最終移動
             _controller.Move((horizontalMove + _velocity) * Time.deltaTime);
         }
     }

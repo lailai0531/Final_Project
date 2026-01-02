@@ -34,7 +34,6 @@ public class AimCameraController : MonoBehaviour {
         lookInput.action.Disable();
     }
 
-    // Update is called once per frame
     private void Update() {
         Vector2 lookInputValue = lookInput.action.ReadValue<Vector2>();
 
