@@ -23,11 +23,8 @@ public class Customer : MonoBehaviour
 
     private Image sliderFillImage;
 
-    // 菜單代碼 (對應 GameFlow 的 Sprite 順序)
     private int[] menuCodes = { 111111, 111101, 011110, 110001 };
 
-    // ⭐【新增】菜單價格 (對應上面的 menuCodes)
-    // 例如: 111111(漢堡)賣120元, 111101(薯條)賣80元...請依序填入
     private int[] menuPrices = { 100, 60, 60, 40 };
 
     private float myTime = 50f;
@@ -132,22 +129,18 @@ public class Customer : MonoBehaviour
         int randomPick = Random.Range(0, menuCodes.Length);
         int chosenCode = menuCodes[randomPick];
 
-        // 寫入 GameFlow
         GameFlow.orderValue[mySeatIndex] = chosenCode;
         GameFlow.orderTimer[mySeatIndex] = myTime;
 
-        // ⭐【新增】寫入價格
-        // 防呆：確認 randomPick 有在 menuPrices 範圍內
         if (randomPick < menuPrices.Length)
         {
             GameFlow.orderPrice[mySeatIndex] = menuPrices[randomPick];
         }
         else
         {
-            GameFlow.orderPrice[mySeatIndex] = 50; // 預設低消
+            GameFlow.orderPrice[mySeatIndex] = 50;
         }
 
-        // 更新圖片
         if (GameFlow.instance != null && orderImage != null)
         {
             if (randomPick < GameFlow.instance.orderPics.Length)
@@ -156,7 +149,6 @@ public class Customer : MonoBehaviour
             }
         }
 
-        // 初始化 Slider
         if (timerSlider != null)
         {
             timerSlider.maxValue = myTime;
@@ -176,7 +168,6 @@ public class Customer : MonoBehaviour
         {
             GameFlow.seatMap[mySeatIndex] = null;
             GameFlow.orderValue[mySeatIndex] = 0;
-            // ⭐【新增】離開時清除價格
             GameFlow.orderPrice[mySeatIndex] = 0;
             if(isHappy == false)
             {

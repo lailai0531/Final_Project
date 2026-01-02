@@ -7,7 +7,7 @@ public class BurgerEndingBehavior : MonoBehaviour
     public GameObject burgerOnPlate; 
     public GameObject emptyPlate;    
 
-    [Header("掉落設定 (新功能)")]
+    [Header("掉落設定")]
     public float dropHeight = 5.0f;     
     public float dropDuration = 0.5f;   
     public AudioClip landSound;        
@@ -94,6 +94,5 @@ public class BurgerEndingBehavior : MonoBehaviour
         if (burgerOnPlate != null) burgerOnPlate.SetActive(false);
         if (emptyPlate != null) emptyPlate.SetActive(true);
 
-        Debug.Log("演出結束：掉落 -> 運鏡 -> 吃掉");
     }
 }

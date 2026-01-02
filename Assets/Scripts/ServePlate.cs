@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(AudioSource))] // ⭐ 確保一定有 AudioSource
+[RequireComponent(typeof(AudioSource))] 
 public class ServePlate : MonoBehaviour
 {
     public int thisPlate = 0;
@@ -20,13 +20,11 @@ public class ServePlate : MonoBehaviour
 
     void Update()
     {
-        // 1. 送餐 (Q)
         if (Input.GetKeyDown(KeyCode.Q))
         {
             if (GameFlow.plateNum == thisPlate) Interact();
         }
 
-        // 2. 倒掉 (1)
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             if (GameFlow.plateNum == thisPlate) ClearPlate();
@@ -42,13 +40,13 @@ public class ServePlate : MonoBehaviour
 
         if (currentCustomer == null)
         {
-            Debug.Log("這裡沒有客人！");
+            Debug.Log("這裡沒有客人");
             return;
         }
 
         if (!currentCustomer.IsArrived())
         {
-            Debug.Log("客人還沒走到櫃台，請稍等！");
+            Debug.Log("客人還沒走到櫃台");
             return;
         }
 
@@ -80,7 +78,6 @@ public class ServePlate : MonoBehaviour
 
         if (isRight)
         {
-            // ⭐ 播放成功音效
             serveSuccessAudio.Play();
 
             int basePrice = GameFlow.orderPrice[thisPlate];
@@ -93,7 +90,6 @@ public class ServePlate : MonoBehaviour
         }
         else
         {
-            // ⭐ 播放失敗音效
             serveFailAudio.Play();
 
             GameFlow.totalCash -= 50;

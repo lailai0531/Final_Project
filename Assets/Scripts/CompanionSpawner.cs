@@ -25,31 +25,25 @@ public class CompanionSpawner : MonoBehaviour
 
     void SpawnAll()
     {
-        // 跑迴圈，把清單裡每一個東西都生出來
         foreach (var item in companions)
         {
             if (item.prefab == null) continue;
 
-            // 1. 計算位置
             Vector3 spawnPos;
             Quaternion spawnRot;
 
             if (useLocalPosition)
             {
-                // 相對座標：角色轉身，這些東西也會跟著轉到對應位置
                 spawnPos = transform.TransformPoint(item.offset);
 
-                // 相對旋轉：角色的旋轉 + 物體自己的旋轉偏移
                 spawnRot = transform.rotation * Quaternion.Euler(item.rotationOffset);
             }
             else
             {
-                // 世界座標：固定不動
                 spawnPos = transform.position + item.offset;
                 spawnRot = Quaternion.Euler(item.rotationOffset);
             }
 
-            // 2. 生成
             Instantiate(item.prefab, spawnPos, spawnRot);
         }
     }

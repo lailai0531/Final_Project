@@ -8,17 +8,17 @@ public class MainController : MonoBehaviour
     public static bool isGameRunning = false;
 
     [Header("Game Settings")]
-    public float gameDuration = 60f; // 遊戲限時
-    public string nextSceneName = "Level2"; // 下一關場景名稱
+    public float gameDuration = 60f; 
+    public string nextSceneName = "EndScene"; 
 
-    [Header("Player Control (重要)")]
-    public GameObject playerObject; // ⭐ 請把主角的 GameObject 拖進來 (用來控制顯示/隱藏)
-    public MonoBehaviour[] playerScripts; // 主角的控制腳本 (用來控制能不能動)
+    [Header("Player Control")]
+    public GameObject playerObject; 
+    public MonoBehaviour[] playerScripts; 
 
     [Header("UI References")]
     public GameObject startMenu;
     public GameObject pauseMenu;
-    public TextMeshProUGUI scoreText; // HUD 分數
+    public TextMeshProUGUI scoreText; 
     public GameObject gameHUD;
 
     [Header("Game Over UI")]
@@ -29,7 +29,6 @@ public class MainController : MonoBehaviour
     public GameObject targetsPrefab;
     private GameObject currentTargets;
 
-    // 狀態變數
     private bool isPaused = false;
     public bool isGameStarted = false;
     private bool isGameOver = false;
@@ -41,12 +40,10 @@ public class MainController : MonoBehaviour
         isGameStarted = false;
         isGameRunning = false;
 
-        // 1. 一開始先把主角隱藏 (因為要先看劇情)
         if (playerObject != null) playerObject.SetActive(false);
 
-        // 2. 初始化 UI
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
-        ShowStartMenu(); // 顯示開始選單
+        ShowStartMenu(); 
         if (gameHUD != null) gameHUD.SetActive(false);
 
         UpdateScoreUI();
@@ -54,30 +51,21 @@ public class MainController : MonoBehaviour
 
     void Update()
     {
-        // 沒開始 或 已結束 就不執行
         if (!isGameStarted || isGameOver) return;
 
-        // 1. 時間流動
         GameFlow.gameTime += Time.deltaTime;
 
-        // 2. 檢查時間是否到了
         if (GameFlow.gameTime >= gameDuration)
         {
             EndGame();
         }
 
-        // 3. 偵測 ESC 暫停
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             TogglePause();
         }
     }
 
-    // =======================
-    // 遊戲流程 (給 StoryManager 呼叫)
-    // =======================
-
-    // 這個函式會被 StoryManager 呼叫，代表劇情結束，遊戲正式開始
     public void OnStartBtnClick()
     {
         StartGame();
@@ -100,29 +88,22 @@ public class MainController : MonoBehaviour
         isGameOver = false;
         Time.timeScale = 1f;
 
-        // 鎖定滑鼠
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        // ⭐ 遊戲開始：把主角顯示出來
         if (playerObject != null) playerObject.SetActive(true);
 
-        // 啟用主角控制
         foreach (var script in playerScripts)
         {
             if (script != null) script.enabled = true;
         }
 
-        // 切換 UI
         startMenu.SetActive(false);
         pauseMenu.SetActive(false);
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
         if (gameHUD != null) gameHUD.SetActive(true);
     }
 
-    // =======================
-    // 遊戲結束
-    // =======================
     private void EndGame()
     {
         isGameOver = true;
@@ -130,17 +111,14 @@ public class MainController : MonoBehaviour
         isGameRunning= false;
         Time.timeScale = 0f;
 
-        // 解鎖滑鼠
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        // 停用主角控制 (但不需要隱藏主角，屍體要在場上)
         foreach (var script in playerScripts)
         {
             if (script != null) script.enabled = false;
         }
 
-        // 關閉 HUD，顯示結算
         if (gameHUD != null) gameHUD.SetActive(false);
 
         if (gameOverPanel != null)
@@ -153,9 +131,6 @@ public class MainController : MonoBehaviour
         }
     }
 
-    // =======================
-    // 其他功能
-    // =======================
     public void OnNextLevelBtnClick()
     {
         Time.timeScale = 1f;

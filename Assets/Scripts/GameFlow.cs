@@ -5,14 +5,10 @@ public class GameFlow : MonoBehaviour
 {
     public static GameFlow instance;
 
-    // =====================
-    // Static Game Data
-    // =====================
     public static int[] orderValue = new int[3];
     public static int[] plateValue = new int[3];
     public static float[] orderTimer = new float[3];
 
-    // ⭐【新增】用來存每一桌訂單的「價格」
     public static int[] orderPrice = new int[3];
 
     public static Customer[] seatMap = new Customer[3];
@@ -25,15 +21,9 @@ public class GameFlow : MonoBehaviour
     public static float emptyPlateNow = -3f;
     public static float totalCash = 0f;
 
-    // =====================
-    // Inspector References
-    // =====================
     public Transform plateSelector;
     public Sprite[] orderPics;
 
-    // =====================
-    // Unity Lifecycle
-    // =====================
     void Awake()
     {
         instance = this;
@@ -58,9 +48,6 @@ public class GameFlow : MonoBehaviour
         }
     }
 
-    // =====================
-    // Reset
-    // =====================
     public static void ResetGameFlow()
     {
         plateNum = 0;
@@ -74,29 +61,24 @@ public class GameFlow : MonoBehaviour
             orderValue[i] = 0;
             plateValue[i] = 0;
             orderTimer[i] = 0f;
-            orderPrice[i] = 0; // ⭐ 重置時也要歸零
+            orderPrice[i] = 0; 
             seatMap[i] = null;
         }
     }
 
     public static void ResetStatics()
     {
-        // 1. 金錢歸零
         totalCash = 0;
         gameTime = 0f;
 
-        // 2. 陣列清空
         orderValue = new int[] { 0, 0, 0 };
         plateValue = new int[] { 0, 0, 0 };
         orderTimer = new float[] { 0, 0, 0 };
 
-        // ⭐【新增】價格陣列也要重置
         orderPrice = new int[] { 0, 0, 0 };
 
-        // 3. 座位清空
         seatMap = new Customer[3];
 
-        // 4. 重置盤子指標
         plateNum = 0;
         emptyPlateNow = -3;
     }

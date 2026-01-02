@@ -21,7 +21,7 @@ public class clickplace : MonoBehaviour
 
     public void Interact()
     {
-        Debug.Log("죍간월죎쬋헕⑥ずかτ쫁쫞촑좬" + gameObject.name );
+        Debug.Log("헕⑥ずかτ촑좬" + gameObject.name );
         if (placeAudio != null)
         {
             placeAudio.PlayOneShot(placeAudio.clip);

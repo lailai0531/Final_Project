@@ -2,8 +2,7 @@ using UnityEngine;
 
 public class cutEffect : MonoBehaviour
 {
-    [Header("音效替身 (新版)")]
-    // 這裡改用 GameObject，對應你的 CutSFX Prefab
+    [Header("音效替身")]
     [SerializeField] private AudioSource chopSFX;
 
 
