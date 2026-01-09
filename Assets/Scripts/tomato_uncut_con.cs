@@ -1,36 +1,49 @@
 ﻿using UnityEngine;
+using System.Collections;
 
 public class tomato_uncut_con : MonoBehaviour
 {
     [Header("設定")]
-    public Transform cutTomatoPrefab; 
+    public Transform cutTomatoPrefab;
+    public float delayTime = 0.5f;
 
     [Header("特效")]
-    public GameObject particlePrefab; 
+    public GameObject particlePrefab;
 
     [Header("音效")]
     [SerializeField] private AudioSource chopSFX;
+
+    private bool isCutting = false;
 
     private void OnMouseDown()
     {
         if (!MainController.isGameRunning) return;
 
-        Debug.Log("切菜動作執行");
+        if (isCutting) return;
 
-        if (cutTomatoPrefab == null) return;
+        StartCoroutine(ProcessCut());
+    }
 
-        Instantiate(cutTomatoPrefab, transform.position, transform.rotation);
+    IEnumerator ProcessCut()
+    {
+        isCutting = true;
 
         if (particlePrefab != null)
         {
             GameObject vfx = Instantiate(particlePrefab, transform.position, Quaternion.identity);
-
             Destroy(vfx, 2.0f);
         }
 
         if (chopSFX != null && chopSFX.clip != null)
         {
             AudioSource.PlayClipAtPoint(chopSFX.clip, Camera.main.transform.position, 1.0f);
+        }
+
+        yield return new WaitForSeconds(delayTime);
+
+        if (cutTomatoPrefab != null)
+        {
+            Instantiate(cutTomatoPrefab, transform.position, transform.rotation);
         }
 
         Destroy(gameObject);

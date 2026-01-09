@@ -24,6 +24,7 @@ public class TomatoBar : MonoBehaviour
 
         if (boardTomatoPrefab != null)
         {
+            GameFlow.totalCash -= 1;
             Vector3 spawnPos = (boardPosition != null) ? boardPosition.position : new Vector3(0, 1.75f, -1.8f);
             Instantiate(boardTomatoPrefab, spawnPos, Quaternion.identity);
             Debug.Log("生成新番茄");

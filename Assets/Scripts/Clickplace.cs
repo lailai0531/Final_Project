@@ -1,12 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Xml.Linq;
 using UnityEngine;
 
 public class clickplace : MonoBehaviour
 {
     public Transform cloneObj;
     public int foodValue;
+
+    public float thickness = 0.15f;
+    public static float currentHeight = 1.2f;
+
 
     [Header("Audio")]
     [SerializeField] private AudioSource placeAudio;
@@ -21,42 +24,39 @@ public class clickplace : MonoBehaviour
 
     public void Interact()
     {
-        Debug.Log("點到的物件是：" + gameObject.name );
+        Debug.Log("點到的物件是：" + gameObject.name);
         if (placeAudio != null)
         {
             placeAudio.PlayOneShot(placeAudio.clip);
         }
 
+        Vector3 spawnPos = new Vector3(GameFlow.plateXpos, currentHeight, 0.2165146f);
+
         if (gameObject.name == "bunbottom")
         {
-            Instantiate(cloneObj, new Vector3(GameFlow.plateXpos, 2.2f, 0.2165146f), cloneObj.rotation);
-            GameFlow.totalCash -= 1;
-
+            spawnPos = new Vector3(GameFlow.plateXpos, 1.15f, 0.2165146f);
+            currentHeight += thickness;
         }
-        if (gameObject.name == "buntop")
+        else if (gameObject.name == "buntop")
         {
-            Instantiate(cloneObj, new Vector3(GameFlow.plateXpos, 2.2f, 0.2165146f), cloneObj.rotation);
-            GameFlow.totalCash -= 1;
-
+            spawnPos = new Vector3(GameFlow.plateXpos, 2.5f, 0.2165146f);
+            currentHeight += thickness;
         }
-        if (gameObject.name == "lettuce")
+        else
         {
-            Instantiate(cloneObj, new Vector3(GameFlow.plateXpos, 2.2f, 0.2165146f), cloneObj.rotation);
-            GameFlow.totalCash -= 1;
-
+            spawnPos = new Vector3(GameFlow.plateXpos, 1.4f, 0.2165146f);
+            currentHeight += thickness;
         }
-        if (gameObject.name == "cheese")
-        {
-            Instantiate(cloneObj, new Vector3(GameFlow.plateXpos, 2.2f, 0.2165146f), cloneObj.rotation);
-            GameFlow.totalCash -= 1;
 
-        }
-        if (gameObject.name.Contains( "tomato"))
+        Instantiate(cloneObj, spawnPos, cloneObj.rotation);
+        if (!gameObject.name.Contains("tomato"))
         {
-            Instantiate(cloneObj, new Vector3(GameFlow.plateXpos, 2.2f, 0.2165146f), cloneObj.rotation);
             GameFlow.totalCash -= 1;
+        }
+
+        if (gameObject.name.Contains("tomato"))
+        {
             Destroy(gameObject);
-
         }
 
         GameFlow.plateValue[GameFlow.plateNum] += foodValue;

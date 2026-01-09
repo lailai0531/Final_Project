@@ -3959,7 +3959,7 @@ Rigidbody:
   m_GameObject: {fileID: 350771037}
   serializedVersion: 5
   m_Mass: 1
-  m_LinearDamping: 0
+  m_LinearDamping: 3
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -3975,7 +3975,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0
 --- !u!114 &350771043
 MonoBehaviour:
@@ -5346,7 +5346,7 @@ Rigidbody:
   m_GameObject: {fileID: 478618983}
   serializedVersion: 5
   m_Mass: 1
-  m_LinearDamping: 0
+  m_LinearDamping: 3
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -5362,7 +5362,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0
 --- !u!114 &478618989
 MonoBehaviour:
@@ -6388,6 +6388,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::clickplace
   cloneObj: {fileID: 478618984}
   foodValue: 1
+  thickness: 0.2
   placeAudio: {fileID: 1774996792}
 --- !u!64 &580712076
 MeshCollider:
@@ -9817,6 +9818,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::tomato_uncut_con
   cutTomatoPrefab: {fileID: 227699843}
+  delayTime: 0.5
   particlePrefab: {fileID: 1441608397395273655, guid: b30c7589f7bf7b040bf7e1e4f58c9ae4, type: 3}
   chopSFX: {fileID: 1157670207}
 --- !u!54 &858824354
@@ -11519,6 +11521,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::clickplace
   cloneObj: {fileID: 1642630174}
   foodValue: 100000
+  thickness: 0.15
   placeAudio: {fileID: 1618265069}
 --- !u!64 &1022651372
 MeshCollider:
@@ -15037,6 +15040,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::clickplace
   cloneObj: {fileID: 350771038}
   foodValue: 1000
+  thickness: 0.1
   placeAudio: {fileID: 940936755}
 --- !u!64 &1318789342
 MeshCollider:
@@ -15696,7 +15700,7 @@ Rigidbody:
   m_GameObject: {fileID: 1370043082}
   serializedVersion: 5
   m_Mass: 1
-  m_LinearDamping: 0
+  m_LinearDamping: 3
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -15712,7 +15716,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0
 --- !u!114 &1370043088
 MonoBehaviour:
@@ -19040,7 +19044,7 @@ Rigidbody:
   m_GameObject: {fileID: 1642630173}
   serializedVersion: 5
   m_Mass: 1
-  m_LinearDamping: 0
+  m_LinearDamping: 3
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -19056,7 +19060,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0
 --- !u!114 &1642630179
 MonoBehaviour:
@@ -20945,7 +20949,7 @@ Rigidbody:
   m_GameObject: {fileID: 1804918518}
   serializedVersion: 5
   m_Mass: 1
-  m_LinearDamping: 0
+  m_LinearDamping: 3
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -20961,7 +20965,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0
 --- !u!114 &1804918524
 MonoBehaviour:
@@ -23304,7 +23308,7 @@ Rigidbody:
   m_GameObject: {fileID: 1946468403}
   serializedVersion: 5
   m_Mass: 1
-  m_LinearDamping: 0
+  m_LinearDamping: 3
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -23320,7 +23324,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0
 --- !u!114 &1946468409
 MonoBehaviour:
@@ -23945,6 +23949,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::clickplace
   cloneObj: {fileID: 1946468404}
   foodValue: 100
+  thickness: 0.09
   placeAudio: {fileID: 891229339}
 --- !u!198 &2010636288 stripped
 ParticleSystem:
@@ -25104,6 +25109,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::clickplace
   cloneObj: {fileID: 1804918519}
   foodValue: 10000
+  thickness: 0.1
   placeAudio: {fileID: 1133422638}
 --- !u!64 &2127778320
 MeshCollider:

@@ -6,7 +6,8 @@ public class CookMove : MonoBehaviour
 {
     private int foodValue = 0;
     private MeshRenderer meat;
-    private string stillcooking = "y"; 
+    private string stillcooking = "y";
+
 
     [Header("特效")]
     [SerializeField] private ParticleSystem smokeEffect;
@@ -54,7 +55,7 @@ public class CookMove : MonoBehaviour
             grillAudio.Stop();
         }
 
-        transform.position = new Vector3(GameFlow.plateXpos, 1.8f, 0.2165146f);
+        transform.position = new Vector3(GameFlow.plateXpos, 1.4f, 0.2165146f);
         GameFlow.plateValue[GameFlow.plateNum] += foodValue;
 
         stillcooking = "done";
