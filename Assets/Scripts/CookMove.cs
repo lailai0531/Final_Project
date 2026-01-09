@@ -55,7 +55,7 @@ public class CookMove : MonoBehaviour
             grillAudio.Stop();
         }
 
-        transform.position = new Vector3(GameFlow.plateXpos, 1.4f, 0.2165146f);
+        transform.position = new Vector3(GameFlow.plateXpos, 2.2f, 0.2165146f);
         GameFlow.plateValue[GameFlow.plateNum] += foodValue;
 
         stillcooking = "done";

@@ -7,8 +7,6 @@ public class clickplace : MonoBehaviour
     public Transform cloneObj;
     public int foodValue;
 
-    public float thickness = 0.15f;
-    public static float currentHeight = 1.2f;
 
 
     [Header("Audio")]
@@ -30,22 +28,19 @@ public class clickplace : MonoBehaviour
             placeAudio.PlayOneShot(placeAudio.clip);
         }
 
-        Vector3 spawnPos = new Vector3(GameFlow.plateXpos, currentHeight, 0.2165146f);
+        Vector3 spawnPos = new Vector3(GameFlow.plateXpos, 2.2f, 0.2165146f);
 
         if (gameObject.name == "bunbottom")
         {
-            spawnPos = new Vector3(GameFlow.plateXpos, 1.15f, 0.2165146f);
-            currentHeight += thickness;
+            spawnPos = new Vector3(GameFlow.plateXpos, 2.2f, 0.2165146f);
         }
         else if (gameObject.name == "buntop")
         {
-            spawnPos = new Vector3(GameFlow.plateXpos, 2.5f, 0.2165146f);
-            currentHeight += thickness;
+            spawnPos = new Vector3(GameFlow.plateXpos, 2.2f, 0.2165146f);
         }
         else
         {
-            spawnPos = new Vector3(GameFlow.plateXpos, 1.4f, 0.2165146f);
-            currentHeight += thickness;
+            spawnPos = new Vector3(GameFlow.plateXpos, 2.2f, 0.2165146f);
         }
 
         Instantiate(cloneObj, spawnPos, cloneObj.rotation);
